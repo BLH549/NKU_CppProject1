@@ -17,13 +17,13 @@ public:
     Timer() = default;
     ~Timer() = default;
 
-    //重装
+    //重置计时器
     void restart()
     {
         pass_time = 0;
         shotted = false;
     }
-
+	//设置时间间隔
     void set_wait_time(int val)
     {
         wait_time = val;
