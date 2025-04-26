@@ -5,6 +5,7 @@
 #include <iostream>
 
 extern SceneManager scene_manager;
+extern IMAGE img_menu_background;	// 主菜单背景图片
 
 //游戏进入时的菜单场景
 class MenuScene : public Scene
@@ -25,7 +26,8 @@ public:
 
     void on_draw()
     {
-        outtextxy(10, 10, _T("MENU"));
+        putimage(0, 0, &img_menu_background);
+        outtextxy(540, 540, _T("按任意键进入游戏"));
     }
 
     void on_input(const ExMessage& msg)
