@@ -1,5 +1,8 @@
 #include <iostream>
 #include <graphics.h>
+#include<vector>
+#include <tchar.h>
+#include <windows.h>
 
 #include "scene.h"
 #include "menu_scene.h"
@@ -9,6 +12,9 @@
 #include "timer.h"
 #include "camera.h"
 #include "vector2.h"
+#include "util.h"
+#include "atlas.h"
+#include "animation.h"
 
 Scene* menu_scene = nullptr;
 Scene* game_scene = nullptr;
@@ -18,13 +24,39 @@ SceneManager scene_manager;
 //素材的加载
 //素材的声明
 IMAGE img_menu_background;	// 主菜单背景图片
+IMAGE img_game_background;	// 游戏场景背景图片
+IMAGE img_player_run_right;
+IMAGE* img_player_run_left = nullptr;
+
+Animation test_animation;
+Animation test_animation_fliped;
 
 void initialize_resources()
 {
+	//加载字体
 	AddFontResourceEx(_T("resources/1Pix.ttf"), FR_PRIVATE, NULL);
 
 	//加载主菜单背景图片
 	loadimage(&img_menu_background, _T("resources/menu_background.png"));
+
+	//加载游戏场景背景图片
+	loadimage(&img_game_background, _T("resources/game_background.png"));
+
+	//初始化角色移动动画
+	loadimage(&img_player_run_right, _T("resources/player_run.png"));
+	test_animation.add_frame(&img_player_run_right, 6);
+	test_animation.set_loop(true);
+	test_animation.set_interval(100);
+	test_animation.set_position(Vector2(0, 0));
+
+
+	img_player_run_left = new IMAGE();
+	flip_image(&img_player_run_right, img_player_run_left, 6);
+	test_animation_fliped.add_frame(img_player_run_left, 6);
+	test_animation_fliped.set_loop(true);
+	test_animation_fliped.set_interval(100);
+	test_animation_fliped.set_position(Vector2(200, 100));
+
 }
 
 int main()

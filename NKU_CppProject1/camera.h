@@ -11,7 +11,7 @@ public:
 	Camera()
 	{
 		timer_shake.set_one_shot(true);
-		timer_shake.set_callback([&]()
+		timer_shake.set_timeout([&]()
 			{
 				is_shaking = false;
 				reset();

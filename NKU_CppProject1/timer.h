@@ -35,7 +35,7 @@ public:
     }
 
     //设置回调函数
-    void set_callback(std::function<void()> callback)
+    void set_timeout(std::function<void()> callback)
     {
         this->callback = callback;
     }

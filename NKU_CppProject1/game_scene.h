@@ -3,9 +3,14 @@
 #include "scene.h"
 #include "scene_manager.h"
 #include "timer.h"
+#include "animation.h"
 #include <iostream>
 
 extern SceneManager scene_manager;
+extern IMAGE img_game_background;	// 游戏场景背景图片
+
+extern Animation test_animation;
+extern Animation test_animation_fliped;
 
 //游戏内主场景
 class GameScene : public Scene
@@ -21,7 +26,7 @@ public:
 		//初始化游戏回合计时器
 		timer_game_round.set_wait_time(10000);
         timer_game_round.set_one_shot(false);
-        timer_game_round.set_callback([&]() {
+        timer_game_round.set_timeout([&]() {
             scene_manager.switch_to(SceneManager::SceneType::EventSelection);
             });
     }
@@ -30,11 +35,15 @@ public:
     {
         std::cout << "GAME IS RUNNING" << std::endl;
 		timer_game_round.on_update(delta);
+		test_animation.on_update(delta);
+		test_animation_fliped.on_update(delta);
     }
 
     void on_draw()
     {
-        outtextxy(10, 10, _T("GAME"));
+		putimage(0, 0, &img_game_background);	// 绘制游戏场景背景图片
+		test_animation.on_render(1.0f);
+		test_animation_fliped.on_render(1.0f);
     }
 
     void on_input(const ExMessage& msg)
