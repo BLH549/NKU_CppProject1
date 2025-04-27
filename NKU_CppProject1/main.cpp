@@ -15,11 +15,16 @@
 #include "util.h"
 #include "atlas.h"
 #include "animation.h"
+#include "player.h"
 
 Scene* menu_scene = nullptr;
 Scene* game_scene = nullptr;
 Scene* eventselection_scene = nullptr;
 SceneManager scene_manager;
+
+bool is_debug = false; //调试模式开关
+
+Player* player = nullptr;
 
 //素材的加载
 //素材的声明
@@ -27,10 +32,11 @@ IMAGE img_menu_background;	// 主菜单背景图片
 IMAGE img_game_background;	// 游戏场景背景图片
 IMAGE img_player_run_right;
 IMAGE* img_player_run_left = nullptr;
+IMAGE img_player_idle_right;
+IMAGE* img_player_idle_left;
 
-Animation test_animation;
-Animation test_animation_fliped;
 
+//资源加载与动画初始化
 void initialize_resources()
 {
 	//加载字体
@@ -44,27 +50,23 @@ void initialize_resources()
 
 	//初始化角色移动动画
 	loadimage(&img_player_run_right, _T("resources/player_run.png"));
-	test_animation.add_frame(&img_player_run_right, 6);
-	test_animation.set_loop(true);
-	test_animation.set_interval(100);
-	test_animation.set_position(Vector2(0, 0));
-
-
 	img_player_run_left = new IMAGE();
 	flip_image(&img_player_run_right, img_player_run_left, 6);
-	test_animation_fliped.add_frame(img_player_run_left, 6);
-	test_animation_fliped.set_loop(true);
-	test_animation_fliped.set_interval(100);
-	test_animation_fliped.set_position(Vector2(200, 100));
+
+	//初始化角色静止动画
+	loadimage(&img_player_idle_right, _T("resources/player_idle.png"));
+	img_player_idle_left = new IMAGE();
+	flip_image(&img_player_idle_right, img_player_idle_left, 4);
+
 
 }
 
 int main()
 {
 	//游戏的初始化部分
-    ExMessage msg;
-    const int FPS = 60;
-    initgraph(1280, 720, EW_SHOWCONSOLE);
+	ExMessage msg;
+	const int FPS = 60;
+	initgraph(1280, 720, EW_SHOWCONSOLE);
 	//设置字体样式
 	settextstyle(28, 0, _T("IPix"));
 	//文本背景色为透明
@@ -85,7 +87,7 @@ int main()
 
 	while (true)
 	{
-		
+
 		DWORD frame_start_time = GetTickCount();
 
 		//消息处理
@@ -101,7 +103,7 @@ int main()
 		scene_manager.on_update(delta_tick);
 		last_tick_time = current_tick_time;
 
-		
+
 		//渲染
 		cleardevice();
 
@@ -109,7 +111,7 @@ int main()
 
 		FlushBatchDraw();
 
-		
+
 		//锁定帧率
 		DWORD frame_end_time = GetTickCount();
 		DWORD frame_delta_time = frame_end_time - frame_start_time;
@@ -122,6 +124,6 @@ int main()
 	}
 
 	EndBatchDraw();
-    return 0;
+	return 0;
 }
 

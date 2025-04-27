@@ -135,6 +135,7 @@
     <ClInclude Include="eventselection_scene.h" />
     <ClInclude Include="game_scene.h" />
     <ClInclude Include="menu_scene.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="scene_manager.h" />
     <ClInclude Include="timer.h" />

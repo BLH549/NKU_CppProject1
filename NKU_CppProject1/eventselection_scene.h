@@ -16,6 +16,7 @@ public:
 
     void on_enter()
     {
+
         std::cout << "Select event" << std::endl;
     }
 
@@ -28,10 +29,10 @@ public:
     {
         outtextxy(10, 10, _T("SELECT EVENT!"));
     }
-    
+
     void on_input(const ExMessage& msg)
     {
-		//按1，2，3键选择事件并切换到游戏场景
+        //按1，2，3键选择事件并切换到游戏场景
         if (msg.message == WM_KEYDOWN)
         {
             if (msg.vkcode >= '1' && msg.vkcode <= '3')
@@ -43,6 +44,7 @@ public:
 
     void on_exit()
     {
+        player->before_game_reset();   //重置角色状态
         std::cout << "EXIT eventselection" << std::endl;
     }
 private:
