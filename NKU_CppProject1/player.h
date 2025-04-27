@@ -25,6 +25,8 @@ protected:
     Vector2 size;                      //角色尺寸
     Vector2 position;                // 角色位置,中心点
     Vector2 velocity;                   //角色速度
+    int damage = 10; //角色伤害值
+    int hp = 100; //角色血量
 
 protected:
 
@@ -43,6 +45,8 @@ protected:
 
     bool is_facing_right = true; // 是否面向右侧
     bool is_moving = false;  // 是否正在移动
+
+    bool is_alive = true;
 
 
 public:
@@ -103,6 +107,37 @@ public:
         position.y = y;
     }
 
+    int get_hp()
+    {
+        return hp;
+    }
+
+    void hp_loss(int d)
+    {
+        hp -= d;
+    }
+
+
+    int get_damage()
+    {
+        return damage;
+    }
+
+    void change_damage(int d)
+    {
+        damage += d;
+    }
+
+    bool check_alive()
+    {
+        if (hp <= 0)
+        {
+            is_alive = false;
+        }
+
+        return is_alive;
+    }
+
     void before_game_reset()
     {
         //重置角色位置
@@ -118,7 +153,7 @@ public:
         is_moving = false;
     }
 
-    virtual void on_attack() {}
+    void on_attack() {}
 
     //重要函数的实现
     //碰撞检测
@@ -166,8 +201,8 @@ public:
         {
             if (direction != 0)
             {
-				is_facing_right = direction > 0;
-			}
+                is_facing_right = direction > 0;
+            }
             else
             {
                 is_facing_right = is_facing_right;

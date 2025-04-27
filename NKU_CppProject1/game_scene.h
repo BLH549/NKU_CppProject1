@@ -1,11 +1,15 @@
 #pragma once
 
+#include <iostream>
+#include <vector>
+
 #include "scene.h"
 #include "scene_manager.h"
 #include "timer.h"
 #include "animation.h"
 #include "player.h"
-#include <iostream>
+#include "enemy.h"
+
 
 extern SceneManager scene_manager;
 extern IMAGE img_game_background;	// 游戏场景背景图片
@@ -16,6 +20,10 @@ extern Player* player;
 //游戏内主场景
 class GameScene : public Scene
 {
+private:
+    Timer timer_game_round;     //一轮游戏回合计时器
+    std::vector<Enemy*> enemy_list;
+    Timer timer_spawn_enemy;    //生成敌人计时器
 public:
     GameScene() = default;
     ~GameScene() = default;
@@ -31,13 +39,36 @@ public:
             scene_manager.switch_to(SceneManager::SceneType::EventSelection);
             });
 
+        timer_spawn_enemy.set_wait_time(5000);
+        timer_spawn_enemy.set_one_shot(false);
+        timer_spawn_enemy.set_timeout([&]() {
+            enemy_list.push_back(new Enemy());
+            });
+
     }
 
     void on_update(int delta)
     {
-        std::cout << "GAME IS RUNNING" << std::endl;
         timer_game_round.on_update(delta);
+        timer_spawn_enemy.on_update(delta);
         player->on_update(delta);
+
+
+        // 清理死亡敌人
+        auto enemy = enemy_list.begin();
+        while (enemy != enemy_list.end())
+        {
+            if (!(*enemy)->check_alive())
+            {
+                delete* enemy;
+                enemy = enemy_list.erase(enemy);
+            }
+            else
+            {
+                (*enemy)->on_update(delta, player);
+                ++enemy;
+            }
+        }
     }
 
     void on_draw()
@@ -52,6 +83,8 @@ public:
         }
 
         player->on_render();
+        for (Enemy* enemy : enemy_list)
+            enemy->on_render();
     }
 
     void on_input(const ExMessage& msg)
@@ -73,8 +106,12 @@ public:
     void on_exit()
     {
         std::cout << "EXIT GAME" << std::endl;
+
+        for (Enemy* enemy : enemy_list)
+            delete enemy;
+
+        enemy_list.clear();
     }
-private:
-    Timer timer_game_round;     //一轮游戏回合计时器
+
 
 };

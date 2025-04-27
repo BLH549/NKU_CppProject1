@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 
 #include "scene.h"
 #include <iostream>
@@ -22,7 +21,7 @@ public:
 
     void on_update(int delta)
     {
-        std::cout << "Please select event" << std::endl;
+
     }
 
     void on_draw()

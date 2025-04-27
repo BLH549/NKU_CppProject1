@@ -16,6 +16,7 @@
 #include "atlas.h"
 #include "animation.h"
 #include "player.h"
+#include "enemy.h"
 
 Scene* menu_scene = nullptr;
 Scene* game_scene = nullptr;
@@ -34,6 +35,8 @@ IMAGE img_player_run_right;
 IMAGE* img_player_run_left = nullptr;
 IMAGE img_player_idle_right;
 IMAGE* img_player_idle_left;
+IMAGE img_orc_run_right;
+IMAGE* img_orc_run_left = nullptr;
 
 
 //资源加载与动画初始化
@@ -58,7 +61,20 @@ void initialize_resources()
 	img_player_idle_left = new IMAGE();
 	flip_image(&img_player_idle_right, img_player_idle_left, 4);
 
+	//初始化哥布林移动动画
+	loadimage(&img_orc_run_right, _T("resources/orc_run.png"));
+	img_orc_run_left = new IMAGE();
+	flip_image(&img_orc_run_right, img_orc_run_left, 6);
+}
 
+void unload_resources()
+{
+	//释放资源
+	delete img_player_run_left;
+	delete img_player_idle_left;
+	delete img_orc_run_left;
+	//卸载字体
+	RemoveFontResourceEx(_T("resources/1Pix.ttf"), FR_PRIVATE, NULL);
 }
 
 int main()
@@ -124,6 +140,7 @@ int main()
 	}
 
 	EndBatchDraw();
+	unload_resources();
 	return 0;
 }
 

@@ -25,7 +25,7 @@ public:
 
     void on_update(int delta)
     {
-        std::cout << "THIS IS MENU" << std::endl;
+
     }
 
     void on_draw()
@@ -47,4 +47,6 @@ public:
         player = new Player();
         std::cout << "EXIT MENU" << std::endl;
     }
+private:
+
 };
