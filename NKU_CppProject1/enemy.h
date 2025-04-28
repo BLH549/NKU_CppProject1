@@ -2,9 +2,11 @@
 #include<iostream>
 #include<graphics.h>
 #include "vector2.h"
+
 #include "camera.h"
 #include "animation.h"
-#include "player.h"
+
+class Player;
 
 extern Player* player;
 extern IMAGE img_orc_run_right;
@@ -19,7 +21,7 @@ public:
 	Vector2 size = { 26,30 };          //人物尺寸
 	Vector2 position;                // 人物位置,中心点
 	Vector2 velocity;                //速度
-	int damage = 10; //伤害值
+	int damage = 20; //伤害值
 	int hp = 1; //血量
 
 
@@ -50,9 +52,38 @@ public:
 		animation_run_left.set_position(this->position);
 
 		//初始化敌人位置
-		position = { 100,100 };
+		enum class SpawnEdge
+		{
+			Up = 0,
+			Down,
+			Left,
+			Right
+		};
 
-		std::cout << "create animation\n";
+
+		// 将敌人放置在地图外边界处的随机位置
+		SpawnEdge edge = (SpawnEdge)(rand() % 4);
+		switch (edge)
+		{
+		case SpawnEdge::Up:
+			position.x = rand() % 1280;
+			position.y = -20;
+			break;
+		case SpawnEdge::Down:
+			position.x = rand() % 1280;
+			position.y = 740;
+			break;
+		case SpawnEdge::Left:
+			position.x = -20;
+			position.y = rand() % 720;
+			break;
+		case SpawnEdge::Right:
+			position.x = 1300;
+			position.y = rand() % 720;
+			break;
+		default:
+			break;
+		}
 	}
 
 	~Enemy() = default;
@@ -121,8 +152,7 @@ public:
 		//角色移动
 		on_run(delta, player);
 
-
-
+		//动画更新
 		if (dir_normalized.x != 0)
 		{
 			is_facing_right = dir_normalized.x > 0;
@@ -131,9 +161,7 @@ public:
 		{
 			is_facing_right = is_facing_right;
 		}
-
 		current_animation = is_facing_right ? &animation_run_right : &animation_run_left;
-
 		current_animation->on_update(delta);
 
 

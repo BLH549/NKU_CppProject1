@@ -2,9 +2,13 @@
 
 #include<iostream>
 #include<graphics.h>
+#include <vector>
+
 #include "vector2.h"
 #include "camera.h"
 #include "animation.h"
+#include "util.h"
+
 
 extern bool is_debug;
 
@@ -14,12 +18,12 @@ extern IMAGE img_player_idle_right;
 extern IMAGE* img_player_idle_left;
 
 
+
 class Player
 {
     //游戏中角色的基础属性
 protected:
     const float run_velocity = 0.25f;//跑动速度
-
 
 
     Vector2 size;                      //角色尺寸
@@ -29,7 +33,7 @@ protected:
     int hp = 100; //角色血量
 
 protected:
-
+    //动画
     Animation animation_run_left;    // 朝向左的奔跑动画
     Animation animation_run_right;   // 朝向右的奔跑动画
 
@@ -38,16 +42,20 @@ protected:
 
     Animation* current_animation = nullptr;
 
+    //计时器
+    Timer timer_invulnerable;
+
+    //角色移动
     bool is_left_key_down = false;  // 向左移动按键是否按下
     bool is_right_key_down = false; // 向右移动按键是否按下
     bool is_up_key_down = false;    // 向上移动按键是否按下
     bool is_down_key_down = false;   // 向下移动按键是否按下
-
     bool is_facing_right = true; // 是否面向右侧
     bool is_moving = false;  // 是否正在移动
 
+	//角色状态
     bool is_alive = true;
-
+	bool is_invulnerable = false; // 是否无敌
 
 public:
     //初始化动画,当前动画
@@ -80,6 +88,16 @@ public:
 
 
         current_animation = &animation_idle_right;
+
+        //初始化计时器
+        timer_invulnerable.set_wait_time(750);
+        timer_invulnerable.set_one_shot(true);
+        timer_invulnerable.set_timeout([&]()
+            {
+                is_invulnerable = false;
+            });
+
+        
 
         //初始化角色位置
         size.x = 46;
@@ -143,7 +161,7 @@ public:
         //重置角色位置
         position.x = 640;
         position.y = 360;
-        //重置角色状态
+        //重置角色移动状态
         is_left_key_down = false;
         is_right_key_down = false;
         is_up_key_down = false;
@@ -151,17 +169,26 @@ public:
         is_facing_right = true;
 
         is_moving = false;
+
+		//重置角色血量
+		hp = 100;
+
+    }
+
+	bool get_invulnerable_State()
+	{
+		return is_invulnerable;
+	}
+
+    void make_invulnerable()
+    {
+        is_invulnerable = true;
+        timer_invulnerable.restart();
     }
 
     void on_attack() {}
 
     //重要函数的实现
-    //碰撞检测
-    void move_and_collide(int delta)
-    {
-
-    }
-
     virtual void on_run(int delta)
     {
         float dir_x = is_right_key_down - is_left_key_down;
@@ -189,12 +216,18 @@ public:
         if (position.y + size.y > 720)	position.y = 720 - size.y;
     }
 
-    //更新状态:朝向，动画，移动，碰撞，计时器
-    virtual void on_update(int delta)
+    void on_collision()
+	{
+		make_invulnerable();
+		std::cout << "Player is hit!" << std::endl;
+	}
+    
+   void on_update(int delta)
     {
         //角色移动
         on_run(delta);
 
+		//动画更新
         int direction = is_right_key_down - is_left_key_down;
 
         if (is_moving)
@@ -218,7 +251,9 @@ public:
 
         current_animation->on_update(delta);
 
-        move_and_collide(delta);
+		//计时器更新
+        timer_invulnerable.on_update(delta);
+
     }
 
     virtual void on_render()

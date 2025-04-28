@@ -4,19 +4,20 @@
 #include <tchar.h>
 #include <windows.h>
 
-#include "scene.h"
-#include "menu_scene.h"
-#include "game_scene.h"
-#include "eventselection_scene.h"
-#include "scene_manager.h"
-#include "timer.h"
-#include "camera.h"
 #include "vector2.h"
+#include "camera.h"
+#include "timer.h"
 #include "util.h"
 #include "atlas.h"
 #include "animation.h"
-#include "player.h"
-#include "enemy.h"
+#include "player.h"   
+#include "enemy.h"   
+#include "scene.h"
+#include "game_scene.h"
+#include "menu_scene.h"
+#include "eventselection_scene.h"
+#include "scene_manager.h"
+
 
 Scene* menu_scene = nullptr;
 Scene* game_scene = nullptr;
@@ -24,6 +25,7 @@ Scene* eventselection_scene = nullptr;
 SceneManager scene_manager;
 
 bool is_debug = false; //调试模式开关
+int round_num = 0;
 
 Player* player = nullptr;
 
@@ -34,7 +36,7 @@ IMAGE img_game_background;	// 游戏场景背景图片
 IMAGE img_player_run_right;
 IMAGE* img_player_run_left = nullptr;
 IMAGE img_player_idle_right;
-IMAGE* img_player_idle_left;
+IMAGE* img_player_idle_left=nullptr;
 IMAGE img_orc_run_right;
 IMAGE* img_orc_run_left = nullptr;
 

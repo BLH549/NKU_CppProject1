@@ -8,6 +8,7 @@
 extern SceneManager scene_manager;
 extern IMAGE img_menu_background;	// 主菜单背景图片
 extern Player* player;
+extern int round_num;
 
 //游戏进入时的菜单场景
 class MenuScene : public Scene
@@ -18,7 +19,7 @@ public:
 
     void on_enter()
     {
-        std::cout << "ENTER MENU" << std::endl;
+        round_num = 0;
         delete player;
 
     }
