@@ -16,7 +16,7 @@
     <Filter Include="头文件\Scene">
       <UniqueIdentifier>{bbf8182e-af78-42b0-b2e7-dd6b76a528a7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\enemy">
+    <Filter Include="头文件\Entity">
       <UniqueIdentifier>{6c9d55a9-0d1a-473e-ae8f-ca655eec7f21}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -59,11 +59,23 @@
     <ClInclude Include="animation.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="player.h">
+    <ClInclude Include="enemy.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="status_bar.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="enemy.h">
-      <Filter>头文件\enemy</Filter>
+    <ClInclude Include="player.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="bullet.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="entity_id.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="slash_bullet.h">
+      <Filter>头文件\Entity</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

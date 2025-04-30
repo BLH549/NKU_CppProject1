@@ -5,8 +5,7 @@
 
 #include "camera.h"
 #include "animation.h"
-
-class Player;
+#include "player.h"
 
 extern Player* player;
 extern IMAGE img_orc_run_right;

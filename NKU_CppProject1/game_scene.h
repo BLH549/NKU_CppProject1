@@ -8,8 +8,12 @@
 #include "scene_manager.h"
 #include "timer.h"
 #include "animation.h"
+#include "status_bar.h"
 #include "player.h"
 #include "enemy.h"
+#include "bullet.h"
+#include "slash_bullet.h"
+#include "entity_id.h"
 
 
 extern SceneManager scene_manager;
@@ -17,15 +21,20 @@ extern IMAGE img_game_background;	// 游戏场景背景图片
 extern bool is_debug;
 extern int round_num;
 
+extern IMAGE img_player_avatar;
+
 extern Player* player;
+extern std::vector<Enemy*> enemy_list;
+extern std::vector<Bullet*> bullet_list;
 
 //游戏内主场景
 class GameScene : public Scene
 {
 private:
     Timer timer_game_round;     //一轮游戏回合计时器
-    std::vector<Enemy*> enemy_list;
+    //std::vector<Enemy*> enemy_list;
     Timer timer_spawn_enemy;    //生成敌人计时器
+    StatusBar status_bar;  //玩家血条
 public:
     GameScene() = default;
     ~GameScene() = default;
@@ -35,7 +44,7 @@ public:
         round_num++;
 
         //初始化游戏回合计时器
-        timer_game_round.set_wait_time(10000);
+        timer_game_round.set_wait_time(50000);
         timer_game_round.set_one_shot(false);
         timer_game_round.set_timeout([&]() {
             scene_manager.switch_to(SceneManager::SceneType::EventSelection);
@@ -49,6 +58,9 @@ public:
             enemy_list.push_back(new Enemy());
             });
 
+        //初始化角色血条
+        status_bar.set_avatar(&img_player_avatar);
+        status_bar.set_position(10, 10);
     }
 
     void on_update(int delta)
@@ -57,20 +69,39 @@ public:
         timer_game_round.on_update(delta);
         timer_spawn_enemy.on_update(delta);
 
-		// 更新玩家
+        // 处理碰撞
+        process_collisions();
+		
+        // 更新玩家
         player->on_update(delta);
 
-        // 处理碰撞
-		process_collisions();
+        //更新玩家血条
+        status_bar.set_hp(player->get_hp());
 
-        // 清理死亡敌人
+        //更新子弹
+        auto bullet = bullet_list.begin();
+        while (bullet != bullet_list.end())
+        {
+            if ((*bullet)->check_can_remove())
+            {
+                delete* bullet;
+                bullet = bullet_list.erase(bullet);
+            }
+            else
+            {
+                (*bullet)->on_update(delta);
+                ++bullet;
+            }
+        }
+
+        // 更新敌人状态
         auto enemy = enemy_list.begin();
         while (enemy != enemy_list.end())
         {
             if (!(*enemy)->check_alive())
             {
                 delete* enemy;
-                enemy = enemy_list.erase(enemy);
+                enemy=enemy_list.erase(enemy);
             }
             else
             {
@@ -78,6 +109,8 @@ public:
                 ++enemy;
             }
         }
+
+
 
         //游戏结束判定：
 		if (player->get_hp() <= 0)
@@ -107,6 +140,10 @@ public:
         player->on_render();
         for (Enemy* enemy : enemy_list)
             enemy->on_render();
+        for (Bullet* bullet : bullet_list)
+            bullet->on_draw();
+
+        status_bar.on_draw();
     }
 
     void on_input(const ExMessage& msg)
@@ -164,6 +201,27 @@ public:
                 std::cout << "Player HP: " << player->get_hp() << std::endl;
             }
         }
+
+		//子弹与玩家，子弹与敌人的碰撞检测
+		for (Bullet* bullet : bullet_list)
+        {
+            if (bullet->get_collide_target() == Entity_ID::Enemy && bullet->get_valid() )
+            {
+                for (Enemy* enemy : enemy_list)
+                {
+                    if (enemy->check_alive() 
+                        && check_collision_AABB(bullet->get_position(), bullet->get_size(), enemy->get_position(), enemy->get_size())
+                        ) 
+                    {
+                        enemy->hp_loss(bullet->get_damage());
+                    }
+                }
+            }
+				
+		    
+			
+		}
+
     }
 
 

@@ -8,6 +8,8 @@
 #include "camera.h"
 #include "animation.h"
 #include "util.h"
+#include "bullet.h"
+#include "slash_bullet.h"
 
 
 extern bool is_debug;
@@ -17,7 +19,7 @@ extern IMAGE* img_player_run_left;
 extern IMAGE img_player_idle_right;
 extern IMAGE* img_player_idle_left;
 
-
+extern std::vector<Bullet*> bullet_list;
 
 class Player
 {
@@ -31,6 +33,7 @@ protected:
     Vector2 velocity;                   //角色速度
     int damage = 10; //角色伤害值
     int hp = 100; //角色血量
+	int attack_cd = 500; //角色攻击冷却时间
 
 protected:
     //动画
@@ -44,6 +47,7 @@ protected:
 
     //计时器
     Timer timer_invulnerable;
+    Timer timer_attack_cd;   //攻击计时器
 
     //角色移动
     bool is_left_key_down = false;  // 向左移动按键是否按下
@@ -52,6 +56,7 @@ protected:
     bool is_down_key_down = false;   // 向下移动按键是否按下
     bool is_facing_right = true; // 是否面向右侧
     bool is_moving = false;  // 是否正在移动
+	bool can_attack = true; // 是否可以攻击
 
 	//角色状态
     bool is_alive = true;
@@ -89,7 +94,7 @@ public:
 
         current_animation = &animation_idle_right;
 
-        //初始化计时器
+        //初始化无敌计时器
         timer_invulnerable.set_wait_time(750);
         timer_invulnerable.set_one_shot(true);
         timer_invulnerable.set_timeout([&]()
@@ -97,6 +102,14 @@ public:
                 is_invulnerable = false;
             });
 
+        //初始化角色攻击计时器
+
+        timer_attack_cd.set_wait_time(attack_cd);
+        timer_attack_cd.set_one_shot(false);
+        timer_attack_cd.set_timeout([&]()
+            {
+                can_attack = true;
+            });
         
 
         //初始化角色位置
@@ -186,7 +199,21 @@ public:
         timer_invulnerable.restart();
     }
 
-    void on_attack() {}
+    void on_attack()
+    {
+		//攻击动画
+		SlashBullet* slash_bullet = new SlashBullet(is_facing_right,position.x,position.y);
+        
+		slash_bullet->set_callback([&]() { delete slash_bullet; });
+		slash_bullet->set_valid(true);
+		can_attack = false;
+		timer_attack_cd.restart();
+        slash_bullet->increase_damage(10);
+		slash_bullet->set_collide_target(Entity_ID::Enemy);
+        slash_bullet->set_size(200.0f, 200.0f);
+		bullet_list.push_back(slash_bullet);
+		
+    }
 
     //重要函数的实现
     virtual void on_run(int delta)
@@ -221,6 +248,8 @@ public:
 		make_invulnerable();
 		std::cout << "Player is hit!" << std::endl;
 	}
+
+    
     
    void on_update(int delta)
     {
@@ -253,6 +282,7 @@ public:
 
 		//计时器更新
         timer_invulnerable.on_update(delta);
+		timer_attack_cd.on_update(delta);
 
     }
 
@@ -265,6 +295,7 @@ public:
         {
             setlinecolor(RGB(0, 125, 255));
             rectangle((int)(position.x - size.x / 2), (int)(position.y - size.y / 2), (int)(position.x + size.x / 2), (int)(position.y + size.y / 2));
+			circle((int)position.x, (int)position.y, 100);
         }
 
 
@@ -288,6 +319,15 @@ public:
                 break;
             case VK_RIGHT:
                 is_right_key_down = true;
+				break;
+                // '/' 键
+			case VK_OEM_2: 
+                if (can_attack)
+                {
+                    on_attack();
+                    can_attack = false;
+                    timer_attack_cd.restart();
+                }
                 break;
             }
             break;

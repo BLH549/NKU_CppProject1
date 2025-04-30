@@ -1,0 +1,47 @@
+#pragma once
+
+#include <iostream>
+#include "bullet.h"
+#include "animation.h"
+
+extern Atlas atlas_slash_left;
+extern Atlas atlas_slash_right;
+
+
+class SlashBullet : public Bullet {
+private:
+    Animation animation;
+    bool is_facing_right;
+
+public:
+    SlashBullet(bool facing_right,float x,float y )
+    {
+		is_facing_right = facing_right;
+		position.x = x;
+		position.y = y; 
+        velocity = { 0,0 };
+        valid = true;
+
+        animation.add_frame(facing_right ? &atlas_slash_right : &atlas_slash_left);
+        animation.set_interval(10);
+        animation.set_loop(false);
+		animation.set_position(position);
+        animation.set_on_finished([&]() { can_remove = true; });
+
+    }
+
+    void on_update(int delta) 
+    {
+        animation.on_update(delta);
+
+        position.x += (int)(velocity.x * delta);
+        position.y += (int)(velocity.y * delta);
+
+    }
+
+    void on_draw() 
+    {
+        animation.on_render(1.0f);
+        Bullet::on_draw();
+    }
+};

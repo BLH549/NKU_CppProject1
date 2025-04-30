@@ -10,9 +10,11 @@
 #include "util.h"
 #include "atlas.h"
 #include "animation.h"
+#include "status_bar.h"
 #include "player.h"   
 #include "enemy.h"   
 #include "scene.h"
+#include "bullet.h"
 #include "game_scene.h"
 #include "menu_scene.h"
 #include "eventselection_scene.h"
@@ -28,6 +30,9 @@ bool is_debug = false; //调试模式开关
 int round_num = 0;
 
 Player* player = nullptr;
+std::vector<Enemy*> enemy_list;
+std::vector<Bullet*> bullet_list;
+
 
 //素材的加载
 //素材的声明
@@ -39,6 +44,13 @@ IMAGE img_player_idle_right;
 IMAGE* img_player_idle_left=nullptr;
 IMAGE img_orc_run_right;
 IMAGE* img_orc_run_left = nullptr;
+
+IMAGE img_player_avatar;
+
+IMAGE orc_bullet;
+Atlas atlas_slash_left, atlas_slash_right;
+Atlas atlas_orc_bullet_break;
+
 
 
 //资源加载与动画初始化
@@ -63,10 +75,22 @@ void initialize_resources()
 	img_player_idle_left = new IMAGE();
 	flip_image(&img_player_idle_right, img_player_idle_left, 4);
 
+	//初始化角色头像：
+	loadimage(&img_player_avatar, _T("resources/player_avatar.png"));
+
 	//初始化哥布林移动动画
 	loadimage(&img_orc_run_right, _T("resources/orc_run.png"));
 	img_orc_run_left = new IMAGE();
 	flip_image(&img_orc_run_right, img_orc_run_left, 6);
+
+	//初始化斩击动画
+	atlas_slash_right.load_from_file(_T("resources/slash_%d.png"), 6);
+	flip_atlas(atlas_slash_right, atlas_slash_left);
+
+
+	//初始化哥布林子弹
+	loadimage(&orc_bullet, _T("resources/orc_bullet.png"));
+	atlas_orc_bullet_break.load_from_file(_T("resources/pea_break_%d.png"), 3);
 }
 
 void unload_resources()

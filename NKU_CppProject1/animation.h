@@ -39,7 +39,7 @@ public:
     Animation()
     {
 
-        //Ä¬ÈÏÑ­»·²¥·Å
+        
         timer.set_one_shot(false);
         timer.set_timeout(
             [&]()
@@ -48,7 +48,7 @@ public:
                 if (idx_frame >= frame_list.size())
                 {
                     idx_frame = is_loop ? 0 : frame_list.size() - 1;
-                    if (is_loop && on_finished)
+                    if (!is_loop && on_finished)
                     {
                         on_finished();
                     }
