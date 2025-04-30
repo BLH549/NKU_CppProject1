@@ -1,7 +1,6 @@
 #pragma once
 
 #include "vector2.h"
-#include "entity_id.h"
 #include "camera.h"
 
 #include <graphics.h>
@@ -17,10 +16,15 @@ public:
     Vector2 position;        // 子弹位置
     Vector2 velocity;        // 子弹速度
     int damage = 0;         // 子弹伤害
-    bool valid = true;       // 子弹是否有效
+    bool valid = true;       // 子弹是否有效，能否碰撞
     bool can_remove = false; // 子弹是否可以被移除
     std::function<void()> callback; // 子弹碰撞回调函数
-    Entity_ID target_id = Entity_ID::Enemy;  //子弹碰撞目标
+    
+
+	//设置子弹碰撞目标
+    bool collide_with_player = false;
+    bool collide_with_enemy = false;
+    bool collide_with_bullet = false;
 
 public:
     Bullet() = default;
@@ -64,15 +68,10 @@ public:
         velocity.x = x, velocity.y = y;
     }
 
-    void set_collide_target(Entity_ID target)
-    {
-        target_id = target;
-    }
-
-    Entity_ID get_collide_target() 
-    {
-        return target_id;
-    }
+    // 设置碰撞目标的方法
+    void set_collide_with_player(bool enable) { collide_with_player = enable; }
+    void set_collide_with_enemy(bool enable) { collide_with_enemy = enable; }
+    void set_collide_with_bullet(bool enable) { collide_with_bullet = enable; }
 
     void set_callback(std::function<void()> callback)
     {

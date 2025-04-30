@@ -28,6 +28,10 @@ public:
 		animation.set_position(position);
         animation.set_on_finished([&]() { can_remove = true; });
 
+		// 设置碰撞目标：先默认为敌人，子弹。后续需要修改
+        collide_with_enemy = true;
+        collide_with_bullet = true;//
+
     }
 
     void on_update(int delta) 

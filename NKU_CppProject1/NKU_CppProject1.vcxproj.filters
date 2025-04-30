@@ -71,9 +71,6 @@
     <ClInclude Include="bullet.h">
       <Filter>头文件\Entity</Filter>
     </ClInclude>
-    <ClInclude Include="entity_id.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="slash_bullet.h">
       <Filter>头文件\Entity</Filter>
     </ClInclude>

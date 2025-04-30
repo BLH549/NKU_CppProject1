@@ -13,7 +13,7 @@
 #include "enemy.h"
 #include "bullet.h"
 #include "slash_bullet.h"
-#include "entity_id.h"
+
 
 
 extern SceneManager scene_manager;
@@ -32,9 +32,8 @@ class GameScene : public Scene
 {
 private:
     Timer timer_game_round;     //一轮游戏回合计时器
-    //std::vector<Enemy*> enemy_list;
-    Timer timer_spawn_enemy;    //生成敌人计时器
-    StatusBar status_bar;  //玩家血条
+    Timer timer_spawn_orc;    //生成小怪计时器
+    StatusBar status_bar;  //玩家状态条
 public:
     GameScene() = default;
     ~GameScene() = default;
@@ -44,7 +43,7 @@ public:
         round_num++;
 
         //初始化游戏回合计时器
-        timer_game_round.set_wait_time(50000);
+        timer_game_round.set_wait_time(10000);
         timer_game_round.set_one_shot(false);
         timer_game_round.set_timeout([&]() {
             scene_manager.switch_to(SceneManager::SceneType::EventSelection);
@@ -52,13 +51,13 @@ public:
 		timer_game_round.restart();
 
 
-        timer_spawn_enemy.set_wait_time(500);
-        timer_spawn_enemy.set_one_shot(false);
-        timer_spawn_enemy.set_timeout([&]() {
+        timer_spawn_orc.set_wait_time(500);
+        timer_spawn_orc.set_one_shot(false);
+        timer_spawn_orc.set_timeout([&]() {
             enemy_list.push_back(new Enemy());
             });
 
-        //初始化角色血条
+        //初始化角色状态
         status_bar.set_avatar(&img_player_avatar);
         status_bar.set_position(10, 10);
     }
@@ -67,7 +66,7 @@ public:
     {
 		// 更新计时器
         timer_game_round.on_update(delta);
-        timer_spawn_enemy.on_update(delta);
+        timer_spawn_orc.on_update(delta);
 
         // 处理碰撞
         process_collisions();
@@ -171,6 +170,18 @@ public:
     }
 
     // 添加碰撞检测函数
+    bool check_collision_point(const Vector2& rect_pos, const Vector2& rect_size, const Vector2& point)
+    {
+        float left = rect_pos.x - rect_size.x / 2;
+        float right = rect_pos.x + rect_size.x / 2;
+        float top = rect_pos.y - rect_size.y / 2;
+        float bottom = rect_pos.y + rect_size.y / 2;
+
+        return (point.x >= left) && (point.x <= right) &&
+            (point.y >= top) && (point.y <= bottom);
+    }
+    
+	//矩形与矩形的碰撞检测
     bool check_collision_AABB(const Vector2& pos1, const Vector2& size1,const Vector2& pos2, const Vector2& size2) 
     {
         float left1 = pos1.x - size1.x / 2;
@@ -187,40 +198,71 @@ public:
             (bottom1 > top2) && (top1 < bottom2);
     }
 
+
     void process_collisions() 
     {
 		// 敌人与玩家的碰撞检测
         for (Enemy* enemy : enemy_list) {
             if (enemy->check_alive() 
-                && check_collision_AABB(player->get_position(), player->get_size(),enemy->get_position(), enemy->get_size()) 
+                && check_collision_point(player->get_position(), player->get_size(),enemy->get_position()) 
                 && !(player->get_invulnerable_State())
                )   
             {
                 player->hp_loss(enemy->get_damage());
 				player->on_collision();
-                std::cout << "Player HP: " << player->get_hp() << std::endl;
+                
             }
         }
 
-		//子弹与玩家，子弹与敌人的碰撞检测
-		for (Bullet* bullet : bullet_list)
+        // 子弹与敌人、子弹与子弹的碰撞检测
+        for (Bullet* bullet : bullet_list)
         {
-            if (bullet->get_collide_target() == Entity_ID::Enemy && bullet->get_valid() )
+            if (bullet->get_valid())
             {
-                for (Enemy* enemy : enemy_list)
+                // 检测子弹与敌人
+                if (bullet->collide_with_enemy)
                 {
-                    if (enemy->check_alive() 
-                        && check_collision_AABB(bullet->get_position(), bullet->get_size(), enemy->get_position(), enemy->get_size())
-                        ) 
+                    for (Enemy* enemy : enemy_list)
                     {
-                        enemy->hp_loss(bullet->get_damage());
+                        if (enemy->check_alive()
+                            && check_collision_AABB(bullet->get_position(), bullet->get_size(), enemy->get_position(), enemy->get_size())
+                            )
+                        {
+                            enemy->hp_loss(bullet->get_damage());
+                        }
                     }
                 }
+
+                // 检测子弹与其他子弹
+                if (bullet->collide_with_bullet)
+                {
+                    for (Bullet* other_bullet : bullet_list)
+                    {
+                        // 避免检测自身
+                        if (other_bullet != bullet && other_bullet->get_valid())
+                        {
+                            if (check_collision_AABB(bullet->get_position(), bullet->get_size(),
+                                other_bullet->get_position(), other_bullet->get_size()))
+                            {
+								other_bullet->set_valid(false);
+								other_bullet->on_collide();
+                            }
+                        }
+                    }
+                }
+
+				// 检测子弹与玩家
+                if (bullet->collide_with_player)
+                {
+                    if (check_collision_point(player->get_position(), player->get_size(),bullet->get_position()))
+                    {
+                        player->hp_loss(bullet->get_damage());
+                    }
+                }
+
+
             }
-				
-		    
-			
-		}
+        }
 
     }
 

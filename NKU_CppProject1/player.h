@@ -35,6 +35,8 @@ protected:
     int hp = 100; //角色血量
 	int attack_cd = 500; //角色攻击冷却时间
 
+	bool can_collide_with_bullet = false; //角色是否可以碰撞
+
 protected:
     //动画
     Animation animation_run_left;    // 朝向左的奔跑动画
@@ -209,7 +211,9 @@ public:
 		can_attack = false;
 		timer_attack_cd.restart();
         slash_bullet->increase_damage(10);
-		slash_bullet->set_collide_target(Entity_ID::Enemy);
+		slash_bullet->set_collide_with_player(false);
+		slash_bullet->set_collide_with_enemy(true);
+		slash_bullet->set_collide_with_bullet(can_collide_with_bullet);
         slash_bullet->set_size(200.0f, 200.0f);
 		bullet_list.push_back(slash_bullet);
 		

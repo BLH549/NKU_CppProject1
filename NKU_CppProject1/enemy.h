@@ -175,6 +175,7 @@ public:
 		{
 			setlinecolor(RGB(0, 125, 255));
 			rectangle((int)(position.x - size.x / 2), (int)(position.y - size.y / 2), (int)(position.x + size.x / 2), (int)(position.y + size.y / 2));
+			circle((int)position.x, (int)position.y, 5);
 		}
 
 
