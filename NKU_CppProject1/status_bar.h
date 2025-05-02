@@ -28,17 +28,10 @@ public:
     {
         putimage_alpha(position.x, position.y, img_avatar);
 
-        setfillcolor(RGB(5, 5, 5));
-        solidroundrect(position.x + 100, position.y + 10, position.x + 100 + width + 3 * 2, position.y + 36, 8, 8);
-       
-        setfillcolor(RGB(67, 47, 47));
-        solidroundrect(position.x + 100, position.y + 10, position.x + 100 + width + 3, position.y + 33, 8, 8);
-        
-
         float hp_bar_width = width * max(0, hp) / 100.0f;
         
         setfillcolor(RGB(197, 61, 67));
-        solidroundrect(position.x + 100, position.y + 10, position.x + 100 + (int)hp_bar_width + 3, position.y + 33, 8, 8);
+        solidroundrect(position.x + 60, position.y + 10, position.x + 100 + (int)hp_bar_width + 3, position.y + 33, 8, 8);
         
     }
 

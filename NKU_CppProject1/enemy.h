@@ -1,185 +1,118 @@
 #pragma once
-#include<iostream>
-#include<graphics.h>
-#include "vector2.h"
 
-#include "camera.h"
+#include "vector2.h"
 #include "animation.h"
 #include "player.h"
 
-extern Player* player;
-extern IMAGE img_orc_run_right;
-extern IMAGE* img_orc_run_left;
 extern bool is_debug;
+extern Player* player;
 
-class Enemy
-{
-public:
-	float run_velocity = 0.10f;//跑动速度
+class Enemy {
+protected:
+    float run_velocity = 0.10f;
+    Vector2 size = { 26,30 };
+    Vector2 position;
+    Vector2 velocity;
+    int damage = 0;
+    int hp = 0;
+	int base_hp = 1;
+	int base_damage = 20;
 
-	Vector2 size = { 26,30 };          //人物尺寸
-	Vector2 position;                // 人物位置,中心点
-	Vector2 velocity;                //速度
-	int damage = 20; //伤害值
-	int hp = 1; //血量
-
-
-
-	Animation animation_run_left;    // 朝向左的奔跑动画
-	Animation animation_run_right;   // 朝向右的奔跑动画
-
-
-	Animation* current_animation = nullptr;
-
-	Vector2 dir_normalized;	//与玩家的方向向量
-
-	bool is_facing_right = true; // 是否面向右侧
-	bool is_alive = true;
+    Animation* current_animation = nullptr;
+    Vector2 dir_player_normalized;
+    bool is_facing_right = true;
 
 public:
-	Enemy()
-	{
-		//初始化敌人移动动画
-		animation_run_right.add_frame(&img_orc_run_right, 6);
-		animation_run_right.set_loop(true);
-		animation_run_right.set_interval(100);
-		animation_run_right.set_position(this->position);
-		flip_image(&img_orc_run_right, img_orc_run_left, 6);
-		animation_run_left.add_frame(img_orc_run_left, 6);
-		animation_run_left.set_loop(true);
-		animation_run_left.set_interval(100);
-		animation_run_left.set_position(this->position);
+    
+    Enemy(int hp_increase, int damage_increase)
+    {
+		// 初始化敌人的数值
+		hp = base_hp+hp_increase;
+		damage = base_damage + damage_increase;
 
-		//初始化敌人位置
-		enum class SpawnEdge
-		{
-			Up = 0,
-			Down,
-			Left,
-			Right
-		};
 
+        // 位置初始化逻辑
+        //初始化敌人位置
+        enum class SpawnEdge
+        {
+            Up = 0,
+            Down,
+            Left,
+            Right
+        };
 
 		// 将敌人放置在地图外边界处的随机位置
-		SpawnEdge edge = (SpawnEdge)(rand() % 4);
-		switch (edge)
-		{
-		case SpawnEdge::Up:
-			position.x = rand() % 1280;
-			position.y = -20;
-			break;
-		case SpawnEdge::Down:
-			position.x = rand() % 1280;
-			position.y = 740;
-			break;
-		case SpawnEdge::Left:
-			position.x = -20;
-			position.y = rand() % 720;
-			break;
-		case SpawnEdge::Right:
-			position.x = 1300;
-			position.y = rand() % 720;
-			break;
-		default:
-			break;
-		}
-	}
+        SpawnEdge edge = static_cast<SpawnEdge>(rand() % 4);
+        switch (edge) {
+        case SpawnEdge::Up:
+            position.x = rand() % 1280;
+            position.y = -20;
+            break;
+        case SpawnEdge::Down:
+            position.x = rand() % 1280;
+            position.y = 740;
+            break;
+        case SpawnEdge::Left:
+            position.x = -20;
+            position.y = rand() % 720;
+            break;
+        case SpawnEdge::Right:
+            position.x = 1300;
+            position.y = rand() % 720;
+            break;
+        }
+    }
 
-	~Enemy() = default;
+    virtual ~Enemy() = default;
+
+    //重要函数
+    virtual void on_attack() {}  
+
+    virtual void on_update(int delta, const Player* player) = 0;
+
+    virtual void on_render()
+    {
+        current_animation->set_position(position);
+        current_animation->on_render(1.0f);
+        
+        if (is_debug)
+        {
+        	setlinecolor(RGB(0, 125, 255));
+        	rectangle((int)(position.x - size.x / 2), (int)(position.y - size.y / 2), (int)(position.x + size.x / 2), (int)(position.y + size.y / 2));
+        	circle((int)position.x, (int)position.y, 5);
+        }
+        
+        
+     }
+
+    void on_run(int delta, const Player* player)
+    {
+        
+        Vector2 dir = { player->get_position().x - position.x, player->get_position().y - position.y };
+        dir_player_normalized = dir.normalize();
+        
+        position.x += (int)(run_velocity * dir_player_normalized.x * delta);
+        position.y += (int)(run_velocity * dir_player_normalized.y * delta);
+
+    }
+
 
 	//一些基本的函数
-	const Vector2& get_position() const
-	{
-		return position;
-	}
-	const Vector2& get_size() const
-	{
-		return size;
-	}
+    Vector2& get_position() { return position; }
 
+	void set_position(float x, float y) { position = { x, y }; }
 
-	void set_position(float x, float y)
-	{
-		position.x = x;
-		position.y = y;
-	}
+    Vector2& get_size()  { return size; }
 
-	int get_hp()
-	{
-		return hp;
-	}
+    bool check_alive() { return hp > 0; }
 
-	void hp_loss(int d)
-	{
-		hp -= d;
-	}
+    void hp_loss(int d) { hp -= d; }
 
+	int get_damage() { return damage; }
 
-	int get_damage()
-	{
-		return damage;
-	}
+	void change_damage(int d) { damage += d; }
 
-	void change_damage(int d)
-	{
-		damage += d;
-	}
-
-	bool check_alive()
-	{
-		if (hp <= 0)
-		{
-			is_alive = false;
-		}
-
-		return is_alive;
-	}
-
-	//核心函数
-	void on_run(int delta, const Player* player)
-	{
-
-		Vector2 dir = { player->get_position().x - position.x, player->get_position().y - position.y };
-		dir_normalized = dir.normalize();
-
-		position.x += (int)(run_velocity * dir_normalized.x * delta);
-		position.y += (int)(run_velocity * dir_normalized.y * delta);
-	}
-
-	virtual void on_update(int delta, const Player* player)
-	{
-		//角色移动
-		on_run(delta, player);
-
-		//动画更新
-		if (dir_normalized.x != 0)
-		{
-			is_facing_right = dir_normalized.x > 0;
-		}
-		else
-		{
-			is_facing_right = is_facing_right;
-		}
-		current_animation = is_facing_right ? &animation_run_right : &animation_run_left;
-		current_animation->on_update(delta);
-
-
-	}
-
-	virtual void on_render()
-	{
-		current_animation->set_position(position);
-		current_animation->on_render(1.0f);
-
-		if (is_debug)
-		{
-			setlinecolor(RGB(0, 125, 255));
-			rectangle((int)(position.x - size.x / 2), (int)(position.y - size.y / 2), (int)(position.x + size.x / 2), (int)(position.y + size.y / 2));
-			circle((int)position.x, (int)position.y, 5);
-		}
-
-
-	}
-
+	void set_run_velocity(float velocity) { run_velocity = velocity; }
+	
 };
 

@@ -20,17 +20,17 @@ public:
 		position.x = x;
 		position.y = y; 
         velocity = { 0,0 };
-        valid = true;
+		size = { 200, 200 };
 
         animation.add_frame(facing_right ? &atlas_slash_right : &atlas_slash_left);
-        animation.set_interval(10);
+        animation.set_interval(8);
         animation.set_loop(false);
 		animation.set_position(position);
         animation.set_on_finished([&]() { can_remove = true; });
 
 		// 设置碰撞目标：先默认为敌人，子弹。后续需要修改
         collide_with_enemy = true;
-        collide_with_bullet = true;//
+        collide_with_bullet = false;//
 
     }
 
@@ -42,6 +42,25 @@ public:
         position.y += (int)(velocity.y * delta);
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     void on_draw() 
     {

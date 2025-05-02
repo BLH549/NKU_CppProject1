@@ -11,8 +11,11 @@
 #include "status_bar.h"
 #include "player.h"
 #include "enemy.h"
+#include "orc.h"
+#include "shaman.h"
 #include "bullet.h"
 #include "slash_bullet.h"
+#include "shaman_bullet.h"
 
 
 
@@ -33,7 +36,10 @@ class GameScene : public Scene
 private:
     Timer timer_game_round;     //一轮游戏回合计时器
     Timer timer_spawn_orc;    //生成小怪计时器
+	Timer timer_spawn_shaman; //生成shaman计时器
     StatusBar status_bar;  //玩家状态条
+	int enemy_damage_increase = 5; //敌人伤害增加值
+	int enemy_hp_increase = 10; //敌人血量增加值
 public:
     GameScene() = default;
     ~GameScene() = default;
@@ -43,7 +49,7 @@ public:
         round_num++;
 
         //初始化游戏回合计时器
-        timer_game_round.set_wait_time(10000);
+        timer_game_round.set_wait_time(20000);
         timer_game_round.set_one_shot(false);
         timer_game_round.set_timeout([&]() {
             scene_manager.switch_to(SceneManager::SceneType::EventSelection);
@@ -51,11 +57,17 @@ public:
 		timer_game_round.restart();
 
 
-        timer_spawn_orc.set_wait_time(500);
+        timer_spawn_orc.set_wait_time(1000);
         timer_spawn_orc.set_one_shot(false);
         timer_spawn_orc.set_timeout([&]() {
-            enemy_list.push_back(new Enemy());
+            enemy_list.push_back(new Orc(enemy_hp_increase,enemy_damage_increase));
             });
+
+		timer_spawn_shaman.set_wait_time(3000);
+		timer_spawn_shaman.set_one_shot(false);
+		timer_spawn_shaman.set_timeout([&]() {
+			enemy_list.push_back(new Shaman(enemy_hp_increase, enemy_damage_increase));
+			});
 
         //初始化角色状态
         status_bar.set_avatar(&img_player_avatar);
@@ -67,6 +79,7 @@ public:
 		// 更新计时器
         timer_game_round.on_update(delta);
         timer_spawn_orc.on_update(delta);
+		timer_spawn_shaman.on_update(delta);
 
         // 处理碰撞
         process_collisions();
@@ -132,7 +145,7 @@ public:
         {
             COLORREF oldColor = gettextcolor();
             settextcolor(RGB(255, 0, 0));  // 红色
-            outtextxy(15, 15, _T("没关就是开？"));
+            outtextxy(15, 695, _T("没关就是开？"));
             settextcolor(oldColor);
         }
 
@@ -166,7 +179,11 @@ public:
         for (Enemy* enemy : enemy_list)
             delete enemy;
 
+		for (Bullet* bullet : bullet_list)
+			delete bullet;
+
         enemy_list.clear();
+        bullet_list.clear();
     }
 
     // 添加碰撞检测函数
@@ -229,6 +246,7 @@ public:
                             )
                         {
                             enemy->hp_loss(bullet->get_damage());
+							bullet->on_collide();
                         }
                     }
                 }
@@ -244,7 +262,7 @@ public:
                             if (check_collision_AABB(bullet->get_position(), bullet->get_size(),
                                 other_bullet->get_position(), other_bullet->get_size()))
                             {
-								other_bullet->set_valid(false);
+								
 								other_bullet->on_collide();
                             }
                         }
@@ -257,6 +275,7 @@ public:
                     if (check_collision_point(player->get_position(), player->get_size(),bullet->get_position()))
                     {
                         player->hp_loss(bullet->get_damage());
+						bullet->on_collide();
                     }
                 }
 

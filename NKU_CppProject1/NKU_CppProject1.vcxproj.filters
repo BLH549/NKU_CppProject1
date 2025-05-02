@@ -74,5 +74,14 @@
     <ClInclude Include="slash_bullet.h">
       <Filter>头文件\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="orc.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="shaman.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="shaman_bullet.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

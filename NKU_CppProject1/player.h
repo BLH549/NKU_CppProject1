@@ -31,8 +31,9 @@ protected:
     Vector2 size;                      //角色尺寸
     Vector2 position;                // 角色位置,中心点
     Vector2 velocity;                   //角色速度
-    int damage = 10; //角色伤害值
-    int hp = 100; //角色血量
+    int damage = 90; //角色伤害值
+	int hp_max = 300; //角色最大血量
+    int hp = 300; //角色血量
 	int attack_cd = 500; //角色攻击冷却时间
 
 	bool can_collide_with_bullet = false; //角色是否可以碰撞
@@ -186,7 +187,7 @@ public:
         is_moving = false;
 
 		//重置角色血量
-		hp = 100;
+		hp = hp_max;
 
     }
 
@@ -199,6 +200,7 @@ public:
     {
         is_invulnerable = true;
         timer_invulnerable.restart();
+       
     }
 
     void on_attack()
@@ -206,15 +208,16 @@ public:
 		//攻击动画
 		SlashBullet* slash_bullet = new SlashBullet(is_facing_right,position.x,position.y);
         
-		slash_bullet->set_callback([&]() { delete slash_bullet; });
-		slash_bullet->set_valid(true);
-		can_attack = false;
 		timer_attack_cd.restart();
-        slash_bullet->increase_damage(10);
+
+        slash_bullet->set_callback([slash_bullet]() { slash_bullet->set_valid(false); });
+		can_attack = false;
+		
+        slash_bullet->increase_damage(damage);
 		slash_bullet->set_collide_with_player(false);
 		slash_bullet->set_collide_with_enemy(true);
 		slash_bullet->set_collide_with_bullet(can_collide_with_bullet);
-        slash_bullet->set_size(200.0f, 200.0f);
+        
 		bullet_list.push_back(slash_bullet);
 		
     }
@@ -250,7 +253,7 @@ public:
     void on_collision()
 	{
 		make_invulnerable();
-		std::cout << "Player is hit!" << std::endl;
+		
 	}
 
     

@@ -97,6 +97,7 @@ public:
     {
         if (callback)
             callback();
+        
     }
 
     bool check_if_exceeds_screen()
@@ -114,7 +115,7 @@ public:
             setlinecolor(RGB(255, 255, 255));
             rectangle((int)(position.x- size.x / 2), (int)(position.y- size.y / 2),
                 (int)(position.x + size.x/2), (int)(position.y + size.y/2));
-            //solidcircle((int)(position.x + size.x / 2), (int)(position.y + size.y / 2), 5);
+            
         }
     }
 
