@@ -244,10 +244,10 @@ public:
         }
 
         //不能移动出屏幕
-        if (position.x < 0)	position.x = 0;
-        if (position.y < 0)	position.y = 0;
-        if (position.x + size.x > 1280)		position.x = 1280 - size.x;
-        if (position.y + size.y > 720)	position.y = 720 - size.y;
+        if (position.x - size.x / 2 < 0)	position.x = size.x/2;
+        if (position.y - size.y / 2 < 0)	position.y = size.y/2;
+        if (position.x + size.x/2 > 1280)		position.x = 1280 - size.x/2;
+        if (position.y + size.y/2 > 720)	position.y = 720 - size.y/2;
     }
 
     void on_collision()

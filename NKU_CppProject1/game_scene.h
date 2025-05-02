@@ -38,8 +38,8 @@ private:
     Timer timer_spawn_orc;    //生成小怪计时器
 	Timer timer_spawn_shaman; //生成shaman计时器
     StatusBar status_bar;  //玩家状态条
-	int enemy_damage_increase = 5; //敌人伤害增加值
-	int enemy_hp_increase = 10; //敌人血量增加值
+	int enemy_damage_increase = 5; //敌人每轮伤害增加值
+	int enemy_hp_increase = 10; //敌人每轮血量增加值
 public:
     GameScene() = default;
     ~GameScene() = default;
@@ -60,14 +60,21 @@ public:
         timer_spawn_orc.set_wait_time(1000);
         timer_spawn_orc.set_one_shot(false);
         timer_spawn_orc.set_timeout([&]() {
-            enemy_list.push_back(new Orc(enemy_hp_increase,enemy_damage_increase));
+            enemy_list.push_back(new Orc(enemy_hp_increase*round_num,enemy_damage_increase * round_num));
             });
 
-		timer_spawn_shaman.set_wait_time(3000);
-		timer_spawn_shaman.set_one_shot(false);
-		timer_spawn_shaman.set_timeout([&]() {
-			enemy_list.push_back(new Shaman(enemy_hp_increase, enemy_damage_increase));
-			});
+		//第二轮出现shaman
+		if (round_num > 1 )
+		{
+            timer_spawn_shaman.set_wait_time(3000);
+            timer_spawn_shaman.set_one_shot(false);
+            timer_spawn_shaman.set_timeout([&]() {
+                enemy_list.push_back(new Shaman(enemy_hp_increase * round_num, enemy_damage_increase * round_num));
+                });
+		}
+
+
+		
 
         //初始化角色状态
         status_bar.set_avatar(&img_player_avatar);
@@ -156,6 +163,21 @@ public:
             bullet->on_draw();
 
         status_bar.on_draw();
+
+        // 显示剩余时间
+        int remaining_time = timer_game_round.wait_time - timer_game_round.pass_time;
+        int seconds = (remaining_time + 999) / 1000; // 毫秒转秒，向上取整
+        TCHAR text_remaining_time[64];
+        _stprintf_s(text_remaining_time, _T(" %d 秒"), seconds);
+
+        // 居中绘制
+        int text_width = textwidth(text_remaining_time);
+        outtextxy((1280 - text_width) / 2, 20, text_remaining_time);
+
+        TCHAR text_round_num[64];
+        _stprintf_s(text_round_num, _T("轮数:%d "), round_num);
+		outtextxy(1170, 10, text_round_num);
+
     }
 
     void on_input(const ExMessage& msg)

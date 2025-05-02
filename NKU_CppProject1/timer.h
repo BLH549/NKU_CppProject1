@@ -5,7 +5,7 @@
 //功能：设置等待时间间隔，设置回调函数，暂停和恢复定时器，单次触发和多次触发
 class Timer
 {
-private:
+public:
     int pass_time = 0;     // 已过时间
     int wait_time = 0;     // 等待时间
     bool paused = false;   // 是否暂停

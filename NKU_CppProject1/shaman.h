@@ -62,7 +62,7 @@ public:
 		bullet->set_collide_with_enemy(false);
 		bullet->set_collide_with_bullet(false);
 		
-        bullet->increase_damage(5);
+        bullet->increase_damage((int)(1.5*damage));
         bullet->set_callback([bullet]() { bullet->set_valid(false); });
 		bullet_list.push_back(bullet);
 	}

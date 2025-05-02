@@ -11,7 +11,6 @@ private:
     Animation animation_break; // 碰撞破碎动画
 
 public:
-    // Constructor takes the starting position and the normalized direction toward the player.
     ShamanBullet(const Vector2& startPos, const Vector2& direction)
     {
         //初始化子弹的速度和位置，大小

@@ -16,7 +16,7 @@ protected:
     int damage = 0;
     int hp = 0;
 	int base_hp = 1;
-	int base_damage = 20;
+	int base_damage = 1;
 
     Animation* current_animation = nullptr;
     Vector2 dir_player_normalized;
