@@ -138,6 +138,7 @@
     <ClInclude Include="game_scene.h" />
     <ClInclude Include="orc.h" />
     <ClInclude Include="menu_scene.h" />
+    <ClInclude Include="particle.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="scene_manager.h" />

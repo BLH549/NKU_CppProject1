@@ -31,7 +31,7 @@ protected:
     Vector2 size;                      //角色尺寸
     Vector2 position;                // 角色位置,中心点
     Vector2 velocity;                   //角色速度
-    int damage = 90; //角色伤害值
+    int damage = 5; //角色伤害值
 	int hp_max = 300; //角色最大血量
     int hp = 300; //角色血量
 	int attack_cd = 500; //角色攻击冷却时间
@@ -267,7 +267,7 @@ public:
 		make_invulnerable();
 
         mciSendString(_T("play being_hurt from 0"), NULL, 0, NULL);
-		
+        
 	}
 
     

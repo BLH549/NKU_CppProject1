@@ -3,9 +3,11 @@
 #include "vector2.h"
 #include "animation.h"
 #include "player.h"
+#include "particle.h"
 
 extern bool is_debug;
 extern Player* player;
+extern ParticleSystem* particle_system;
 
 class Enemy {
 protected:
@@ -106,7 +108,20 @@ public:
 
     bool check_alive() { return hp > 0; }
 
-    void hp_loss(int d) { hp -= d; }
+    void hp_loss(int d) 
+    { 
+        hp -= d; 
+        particle_system->CreateDamageEffect(position);
+
+		if (hp <= 0)
+		{
+			particle_system->CreateExplosion(position);
+            mciSendString(_T("play hit from 0"), NULL, 0, NULL);
+		}
+
+        
+    
+    }
 
 	int get_damage() { return damage; }
 

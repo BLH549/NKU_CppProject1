@@ -16,7 +16,7 @@ public:
     void on_enter()
     {
 
-        std::cout << "Select event" << std::endl;
+        
     }
 
     void on_update(int delta)
@@ -26,7 +26,7 @@ public:
 
     void on_draw()
     {
-        outtextxy(10, 10, _T("SELECT EVENT!"));
+        outtextxy(610, 350, _T("获得祝福：攻击力提升"));
     }
 
     void on_input(const ExMessage& msg)

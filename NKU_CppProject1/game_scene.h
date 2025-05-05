@@ -27,8 +27,10 @@ extern int round_num;
 extern IMAGE img_player_avatar;
 
 extern Player* player;
+extern ParticleSystem* particle_system;
 extern std::vector<Enemy*> enemy_list;
 extern std::vector<Bullet*> bullet_list;
+
 
 //游戏内主场景
 class GameScene : public Scene
@@ -71,6 +73,8 @@ public:
             timer_spawn_shaman.set_timeout([&]() {
                 enemy_list.push_back(new Shaman(enemy_hp_increase * round_num, enemy_damage_increase * round_num));
                 });
+
+            
 		}
 
 
@@ -131,7 +135,7 @@ public:
             }
         }
 
-
+        particle_system->UpdateAll();
 
         //游戏结束判定：
 		if (player->get_hp() <= 0)
@@ -163,6 +167,8 @@ public:
             enemy->on_render();
         for (Bullet* bullet : bullet_list)
             bullet->on_draw();
+
+        particle_system->DrawAll();
 
         status_bar.on_draw();
 
@@ -272,7 +278,11 @@ public:
                             )
                         {
                             enemy->hp_loss(bullet->get_damage());
+                            
+
 							bullet->on_collide();
+
+                            
                         }
                     }
                 }

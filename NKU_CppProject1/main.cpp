@@ -18,6 +18,7 @@
 #include "menu_scene.h"
 #include "eventselection_scene.h"
 #include "scene_manager.h"
+#include "particle.h"
 
 #pragma comment(lib,"Winmm.lib")
 
@@ -32,6 +33,8 @@ int round_num = 0;
 Player* player = nullptr;
 std::vector<Enemy*> enemy_list;
 std::vector<Bullet*> bullet_list;
+
+ParticleSystem* particle_system = nullptr; // 粒子系统
 
 
 //素材的加载
@@ -106,6 +109,7 @@ void initialize_resources()
 	
 	mciSendString(_T("open resources/slash.mp3 alias slash"), NULL, 0, NULL);
 	mciSendString(_T("open resources/being_hurt.mp3 alias being_hurt"), NULL, 0, NULL);
+	mciSendString(_T("open resources/hit.wav alias hit"), NULL, 0, NULL);
 
 
 }
@@ -137,6 +141,7 @@ int main()
 	menu_scene = new MenuScene();
 	game_scene = new GameScene();
 	eventselection_scene = new EventSelectionScene();
+	particle_system = new ParticleSystem();
 
 	//初始化资源
 	initialize_resources();

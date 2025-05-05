@@ -83,5 +83,8 @@
     <ClInclude Include="shaman_bullet.h">
       <Filter>头文件\Entity</Filter>
     </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>头文件\Entity</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
