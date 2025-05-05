@@ -79,6 +79,8 @@ public:
         //³õÊ¼»¯½ÇÉ«×´Ì¬
         status_bar.set_avatar(&img_player_avatar);
         status_bar.set_position(10, 10);
+
+        mciSendString(_T("play bgm_game repeat from 0"), NULL, 0, NULL);
     }
 
     void on_update(int delta)
@@ -206,6 +208,8 @@ public:
 
         enemy_list.clear();
         bullet_list.clear();
+
+        
     }
 
     // Ìí¼ÓÅö×²¼ì²âº¯Êı

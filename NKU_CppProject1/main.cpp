@@ -1,8 +1,7 @@
 #include <iostream>
 #include <graphics.h>
 #include<vector>
-#include <tchar.h>
-#include <windows.h>
+
 
 #include "vector2.h"
 #include "camera.h"
@@ -20,6 +19,7 @@
 #include "eventselection_scene.h"
 #include "scene_manager.h"
 
+#pragma comment(lib,"Winmm.lib")
 
 Scene* menu_scene = nullptr;
 Scene* game_scene = nullptr;
@@ -98,6 +98,16 @@ void initialize_resources()
 	//初始化哥布林子弹
 	loadimage(&shaman_bullet, _T("resources/shaman_bullet.png"));
 	atlas_shaman_bullet_break.load_from_file(_T("resources/shaman_bullet_break_%d.png"), 3);
+
+	mciSendString(_T("open resources/bgm_game.mp3 alias bgm_game"), NULL, 0, NULL);
+	mciSendString(_T("open resources/pea_break_1.mp3 alias pea_break_1"), NULL, 0, NULL);
+	mciSendString(_T("open resources/pea_break_2.mp3 alias pea_break_2"), NULL, 0, NULL);
+	mciSendString(_T("open resources/pea_break_3.mp3 alias pea_break_3"), NULL, 0, NULL);
+	
+	mciSendString(_T("open resources/slash.mp3 alias slash"), NULL, 0, NULL);
+	mciSendString(_T("open resources/being_hurt.mp3 alias being_hurt"), NULL, 0, NULL);
+
+
 }
 
 void unload_resources()
@@ -109,6 +119,8 @@ void unload_resources()
 	delete img_shaman_run_left;
 	//卸载字体
 	RemoveFontResourceEx(_T("resources/1Pix.ttf"), FR_PRIVATE, NULL);
+	
+
 }
 
 int main()

@@ -37,6 +37,7 @@ protected:
 	int attack_cd = 500; //角色攻击冷却时间
 
 	bool can_collide_with_bullet = false; //角色是否可以碰撞
+	bool is_showing_sketch_frame = false; //角色是否显示轮廓框
 
 protected:
     //动画
@@ -48,8 +49,11 @@ protected:
 
     Animation* current_animation = nullptr;
 
+	
+
     //计时器
     Timer timer_invulnerable;
+    Timer timer_invulnerable_blink;
     Timer timer_attack_cd;   //攻击计时器
 
     //角色移动
@@ -113,6 +117,8 @@ public:
             {
                 can_attack = true;
             });
+        
+
         
 
         //初始化角色位置
@@ -219,6 +225,12 @@ public:
 		slash_bullet->set_collide_with_bullet(can_collide_with_bullet);
         
 		bullet_list.push_back(slash_bullet);
+
+
+        // 播放攻击音效
+        
+        mciSendString(_T("play slash from 0"), NULL, 0, NULL);
+
 		
     }
 
@@ -253,6 +265,8 @@ public:
     void on_collision()
 	{
 		make_invulnerable();
+
+        mciSendString(_T("play being_hurt from 0"), NULL, 0, NULL);
 		
 	}
 
@@ -286,6 +300,10 @@ public:
         }
 
         current_animation->on_update(delta);
+
+        
+            
+
 
 		//计时器更新
         timer_invulnerable.on_update(delta);

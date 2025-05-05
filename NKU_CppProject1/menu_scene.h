@@ -21,6 +21,7 @@ public:
     {
         round_num = 0;
         delete player;
+        mciSendString(_T("stop bgm_game"), NULL, 0, NULL);
 
     }
 
@@ -46,7 +47,7 @@ public:
     void on_exit()
     {
         player = new Player();
-        std::cout << "EXIT MENU" << std::endl;
+        
     }
 private:
 

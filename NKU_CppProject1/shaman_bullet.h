@@ -64,6 +64,18 @@ public:
     void on_collide()
     {
         Bullet::on_collide();
+        switch (rand() % 3)
+        {
+        case 0:
+            mciSendString(_T("play pea_break_1 from 0"), NULL, 0, NULL);
+            break;
+        case 1:
+            mciSendString(_T("play pea_break_2 from 0"), NULL, 0, NULL);
+            break;
+        case 2:
+            mciSendString(_T("play pea_break_3 from 0"), NULL, 0, NULL);
+            break;
+        }
 
         
      }
