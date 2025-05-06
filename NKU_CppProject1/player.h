@@ -24,7 +24,7 @@ extern std::vector<Bullet*> bullet_list;
 class Player
 {
     //游戏中角色的基础属性
-protected:
+public:
     const float run_velocity = 0.25f;//跑动速度
 
 
@@ -235,7 +235,7 @@ public:
     }
 
     //重要函数的实现
-    virtual void on_run(int delta)
+    void on_run(int delta)
     {
         float dir_x = is_right_key_down - is_left_key_down;
         float dir_y = is_down_key_down - is_up_key_down;
@@ -311,7 +311,7 @@ public:
 
     }
 
-    virtual void on_render()
+    void on_render()
     {
         current_animation->set_position(position);
         current_animation->on_render(1.0f);
@@ -326,27 +326,26 @@ public:
 
     }
 
-    virtual void on_input(const ExMessage& msg)
+    void on_input(const ExMessage& msg)
     {
         switch (msg.message)
         {
         case WM_KEYDOWN:
             switch (msg.vkcode)
             {
-            case VK_UP:
+            case 'W': // 向上移动
                 is_up_key_down = true;
                 break;
-            case VK_DOWN:
+            case 'S': // 向下移动
                 is_down_key_down = true;
                 break;
-            case VK_LEFT:
+            case 'A': // 向左移动
                 is_left_key_down = true;
                 break;
-            case VK_RIGHT:
+            case 'D': // 向右移动
                 is_right_key_down = true;
-				break;
-                // '/' 键
-			case VK_OEM_2: 
+                break;
+            case 'J': // 攻击
                 if (can_attack)
                 {
                     on_attack();
@@ -356,19 +355,20 @@ public:
                 break;
             }
             break;
+
         case WM_KEYUP:
             switch (msg.vkcode)
             {
-            case VK_UP:
+            case 'W': // 停止向上移动
                 is_up_key_down = false;
                 break;
-            case VK_DOWN:
+            case 'S': // 停止向下移动
                 is_down_key_down = false;
                 break;
-            case VK_LEFT:
+            case 'A': // 停止向左移动
                 is_left_key_down = false;
                 break;
-            case VK_RIGHT:
+            case 'D': // 停止向右移动
                 is_right_key_down = false;
                 break;
             }

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <graphics.h>
-
+#include <algorithm>
 #include "scene.h"
 #include "scene_manager.h"
 #include "timer.h"
@@ -58,8 +58,14 @@ public:
             });
 		timer_game_round.restart();
 
+        // 根据轮数计算敌人生成间隔（轮数越高间隔越短，最低不低于300ms）
+        int orc_spawn_interval = (( 300 > (2000 - round_num * 100)) ? (500) : (1000 - round_num * 100));
+        int shaman_spawn_interval = (( 500 > (2000 - round_num * 100)) ? (500) : (2000 - round_num * 150));
 
-        timer_spawn_orc.set_wait_time(1000);
+        
+
+
+        timer_spawn_orc.set_wait_time(orc_spawn_interval);
         timer_spawn_orc.set_one_shot(false);
         timer_spawn_orc.set_timeout([&]() {
             enemy_list.push_back(new Orc(enemy_hp_increase*round_num,enemy_damage_increase * round_num));
@@ -68,7 +74,7 @@ public:
 		//第二轮出现shaman
 		if (round_num > 1 )
 		{
-            timer_spawn_shaman.set_wait_time(3000);
+            timer_spawn_shaman.set_wait_time(shaman_spawn_interval);
             timer_spawn_shaman.set_one_shot(false);
             timer_spawn_shaman.set_timeout([&]() {
                 enemy_list.push_back(new Shaman(enemy_hp_increase * round_num, enemy_damage_increase * round_num));
@@ -158,7 +164,6 @@ public:
         {
             COLORREF oldColor = gettextcolor();
             settextcolor(RGB(255, 0, 0));  // 红色
-            outtextxy(15, 695, _T("没关就是开？"));
             settextcolor(oldColor);
         }
 

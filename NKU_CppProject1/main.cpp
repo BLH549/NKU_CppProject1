@@ -56,7 +56,9 @@ IMAGE shaman_bullet;
 Atlas atlas_slash_left, atlas_slash_right;
 Atlas atlas_shaman_bullet_break;
 
-
+IMAGE img_buff_attackcd;
+IMAGE img_buff_damage;
+IMAGE img_buff_hp;
 
 //资源加载与动画初始化
 void initialize_resources()
@@ -101,6 +103,11 @@ void initialize_resources()
 	//初始化哥布林子弹
 	loadimage(&shaman_bullet, _T("resources/shaman_bullet.png"));
 	atlas_shaman_bullet_break.load_from_file(_T("resources/shaman_bullet_break_%d.png"), 3);
+
+	//初始化buff图片
+	loadimage(&img_buff_attackcd, _T("resources/buff_attackcd.png"));
+	loadimage(&img_buff_damage, _T("resources/buff_damage.png"));
+	loadimage(&img_buff_hp, _T("resources/buff_hp.png"));
 
 	mciSendString(_T("open resources/bgm_game.mp3 alias bgm_game"), NULL, 0, NULL);
 	mciSendString(_T("open resources/pea_break_1.mp3 alias pea_break_1"), NULL, 0, NULL);

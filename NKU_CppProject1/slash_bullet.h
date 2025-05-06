@@ -44,24 +44,6 @@ public:
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     void on_draw() 
     {
         animation.on_render(1.0f);
