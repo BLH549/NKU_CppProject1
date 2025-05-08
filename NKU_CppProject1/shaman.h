@@ -27,11 +27,16 @@ private:
 public:
     
     Shaman(int hp_increase, int damage_increase)
-        : Enemy(hp_increase, damage_increase)
     {
         //初始化shaman的基础属性:
-		size = { 38,38 };
-        
+		size = { 38,38 };//敌人大小
+        base_hp = 3;	//设置敌人的初始血量
+        base_damage = 2;	//设置敌人初始伤害
+
+        hp = base_hp + hp_increase;
+        damage = base_damage + damage_increase;
+
+
         animation_run_right.add_frame(&img_shaman_run_right, 6);
         animation_run_right.set_loop(true);
         animation_run_right.set_interval(100);
@@ -51,6 +56,8 @@ public:
         timer_attack_cd.set_timeout([this]() {
 			spawn_bullet();
             });
+
+        std::cout <<"Shaman:" << damage << " " << hp << std::endl;
     }
 
 	void spawn_bullet() {

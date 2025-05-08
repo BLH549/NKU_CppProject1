@@ -26,13 +26,9 @@ protected:
 
 public:
     
-    Enemy(int hp_increase, int damage_increase)
+    Enemy()
     {
-		// 初始化敌人的数值
-		hp = base_hp+hp_increase;
-		damage = base_damage + damage_increase;
-
-
+		
         // 位置初始化逻辑
         //初始化敌人位置
         enum class SpawnEdge

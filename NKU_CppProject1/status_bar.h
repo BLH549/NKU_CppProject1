@@ -31,7 +31,7 @@ public:
         float hp_bar_width = width * max(0, hp) / 100.0f;
         
         setfillcolor(RGB(197, 61, 67));
-        solidroundrect(position.x + 60, position.y + 10, position.x + 100 + (int)hp_bar_width + 3, position.y + 33, 8, 8);
+        solidroundrect(position.x + 60, position.y + 10, position.x +60 +(int)hp_bar_width-1, position.y + 33, 8, 8);
         
     }
 

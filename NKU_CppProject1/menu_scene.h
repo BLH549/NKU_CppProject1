@@ -34,6 +34,16 @@ public:
     {
         putimage(0, 0, &img_menu_background);
         outtextxy(540, 540, _T("按任意键进入游戏"));
+
+        COLORREF old_color = gettextcolor();
+
+        // 绘制提示文本
+        const TCHAR* hint_text = _T("(WASD移动，J攻击，记得切换英文输入法)");
+        int hint_width = textwidth(hint_text);
+
+        settextcolor(RGB(200, 200, 200)); // 浅灰色提示文字
+        outtextxy((1280 - hint_width) / 2 ,580, hint_text);
+        settextcolor(old_color);
     }
 
     void on_input(const ExMessage& msg)

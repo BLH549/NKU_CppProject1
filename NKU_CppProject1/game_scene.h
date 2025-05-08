@@ -51,7 +51,7 @@ public:
         round_num++;
 
         //初始化游戏回合计时器
-        timer_game_round.set_wait_time(20000);
+        timer_game_round.set_wait_time(10000);  
         timer_game_round.set_one_shot(false);
         timer_game_round.set_timeout([&]() {
             scene_manager.switch_to(SceneManager::SceneType::EventSelection);
@@ -59,12 +59,9 @@ public:
 		timer_game_round.restart();
 
         // 根据轮数计算敌人生成间隔（轮数越高间隔越短，最低不低于300ms）
-        int orc_spawn_interval = (( 300 > (2000 - round_num * 100)) ? (500) : (1000 - round_num * 100));
-        int shaman_spawn_interval = (( 500 > (2000 - round_num * 100)) ? (500) : (2000 - round_num * 150));
-
-        
-
-
+        int orc_spawn_interval = max(500, 1000 - round_num * 100);
+        int shaman_spawn_interval = max(400, (2000 - round_num * 150));
+       
         timer_spawn_orc.set_wait_time(orc_spawn_interval);
         timer_spawn_orc.set_one_shot(false);
         timer_spawn_orc.set_timeout([&]() {
@@ -91,6 +88,7 @@ public:
         status_bar.set_position(10, 10);
 
         mciSendString(_T("play bgm_game repeat from 0"), NULL, 0, NULL);
+        mciSendString(_T("setaudio bgm_game volume to 300"), NULL, 0, NULL); // 新增音量设置
     }
 
     void on_update(int delta)
@@ -146,6 +144,13 @@ public:
         //游戏结束判定：
 		if (player->get_hp() <= 0)
 		{
+
+            status_bar.set_hp(player->get_hp());
+            
+            cleardevice();         
+            on_draw();             
+            FlushBatchDraw();      // 强制刷新画面到屏幕
+
             static TCHAR	 text[128];
             _stprintf_s(text, _T("坚持轮数：%d"), round_num);
             MessageBox(GetHWnd(), text, _T("游戏结束"), MB_OK);

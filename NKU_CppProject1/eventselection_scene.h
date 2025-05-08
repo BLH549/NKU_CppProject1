@@ -12,13 +12,14 @@ extern Player* player;
 extern IMAGE img_buff_attackcd;
 extern IMAGE img_buff_damage;
 extern IMAGE img_buff_hp;
+extern IMAGE img_buff_slash;
 extern IMAGE img_game_background;
 
 //事件选择场景
 class EventSelectionScene : public Scene
 {
 public:
-    int num = 3;
+    int num = 4;
     // 当前选中的事件索引
     int selected_event_index = 0;
 
@@ -38,7 +39,7 @@ public:
 
         switch (selected_event_index) {
         case 0: // 攻击力提升
-            player->change_damage(5);
+            player->change_damage(20);
             current_img = &img_buff_damage;
             blessing_name = _T("攻击力提升");
             break;
@@ -46,13 +47,18 @@ public:
             player->attack_cd -= 100;
             if (player->attack_cd < 20) player->attack_cd = 20;
             current_img = &img_buff_attackcd;
-            blessing_name = _T("攻击冷却缩短");
+            blessing_name = _T("祝福:攻击冷却缩短");
             break;
         case 2: // 最大生命值提升
             player->hp_max += 50;
             current_img = &img_buff_hp;
-            blessing_name = _T("最大生命值提升");
+            blessing_name = _T("祝福:最大生命值提升");
             break;
+        case 3: //特殊事件，斩碎子弹
+            player->can_collide_with_bullet = true;
+            current_img = &img_buff_slash;
+            blessing_name = _T("稀有祝福:子弹可以被击碎");
+            num=num - 1;    //只能获得一次
         }
     }
 
@@ -71,7 +77,7 @@ public:
 
         // 绘制祝福文本
         TCHAR text[128];
-        _stprintf_s(text, _T("获得祝福: %s"), blessing_name);
+        _stprintf_s(text, blessing_name);
 
         // 计算文本位置
         int text_width = textwidth(text);

@@ -59,6 +59,7 @@ Atlas atlas_shaman_bullet_break;
 IMAGE img_buff_attackcd;
 IMAGE img_buff_damage;
 IMAGE img_buff_hp;
+IMAGE img_buff_slash;
 
 //资源加载与动画初始化
 void initialize_resources()
@@ -108,6 +109,7 @@ void initialize_resources()
 	loadimage(&img_buff_attackcd, _T("resources/buff_attackcd.png"));
 	loadimage(&img_buff_damage, _T("resources/buff_damage.png"));
 	loadimage(&img_buff_hp, _T("resources/buff_hp.png"));
+	loadimage(&img_buff_slash, _T("resources/buff_slash.png"));
 
 	mciSendString(_T("open resources/bgm_game.mp3 alias bgm_game"), NULL, 0, NULL);
 	mciSendString(_T("open resources/pea_break_1.mp3 alias pea_break_1"), NULL, 0, NULL);

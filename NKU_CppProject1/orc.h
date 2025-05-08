@@ -13,8 +13,16 @@ private:
 
 public:
 	Orc(int hp_increase, int damage_increase)
-		: Enemy(hp_increase, damage_increase) 
 	{
+
+		// 初始化敌人的数值
+		size = { 26,30 };
+		base_hp = 1;	//设置敌人的初始血量
+		base_damage = 5;	//设置敌人初始伤害
+
+		hp = base_hp + hp_increase;
+		damage = base_damage + damage_increase;
+
 
 		//初始化orc移动动画
 		animation_run_right.add_frame(&img_orc_run_right, 6);
@@ -29,6 +37,7 @@ public:
 
 		current_animation = &animation_run_right;
 
+		std::cout << "Orc:" << damage << " " << hp << std::endl;
     }
 
     

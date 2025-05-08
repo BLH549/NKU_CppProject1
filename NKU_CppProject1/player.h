@@ -25,18 +25,16 @@ class Player
 {
     //游戏中角色的基础属性
 public:
-    const float run_velocity = 0.25f;//跑动速度
-
-
     Vector2 size;                      //角色尺寸
     Vector2 position;                // 角色位置,中心点
     Vector2 velocity;                   //角色速度
-    int damage = 5; //角色伤害值
-	int hp_max = 300; //角色最大血量
-    int hp = 300; //角色血量
+    int damage = 20; //角色伤害值
+	int hp_max = 30; //角色最大血量
+    int hp = 30; //角色血量
 	int attack_cd = 500; //角色攻击冷却时间
+    const float run_velocity = 0.25f;//跑动速度
 
-	bool can_collide_with_bullet = false; //角色是否可以碰撞
+	bool can_collide_with_bullet = false; //是否可以碰撞子弹
 	bool is_showing_sketch_frame = false; //角色是否显示轮廓框
 
 protected:
@@ -231,6 +229,7 @@ public:
         
         mciSendString(_T("play slash from 0"), NULL, 0, NULL);
 
+        std::cout << "Player:" << damage << " " << attack_cd << std::endl;
 		
     }
 
