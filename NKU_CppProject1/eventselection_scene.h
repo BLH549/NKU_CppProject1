@@ -39,18 +39,18 @@ public:
 
         switch (selected_event_index) {
         case 0: // 攻击力提升
-            player->change_damage(20);
+            player->change_damage(15);
             current_img = &img_buff_damage;
             blessing_name = _T("攻击力提升");
             break;
         case 1: // 攻击速度提升
             player->attack_cd -= 100;
-            if (player->attack_cd < 20) player->attack_cd = 20;
+            if (player->attack_cd < 60) player->attack_cd = 60;
             current_img = &img_buff_attackcd;
             blessing_name = _T("祝福:攻击冷却缩短");
             break;
         case 2: // 最大生命值提升
-            player->hp_max += 50;
+            player->hp_max += 60;
             current_img = &img_buff_hp;
             blessing_name = _T("祝福:最大生命值提升");
             break;

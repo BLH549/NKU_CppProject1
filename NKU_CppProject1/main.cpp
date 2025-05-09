@@ -118,7 +118,7 @@ void initialize_resources()
 	
 	mciSendString(_T("open resources/slash.mp3 alias slash"), NULL, 0, NULL);
 	mciSendString(_T("open resources/being_hurt.mp3 alias being_hurt"), NULL, 0, NULL);
-	mciSendString(_T("open resources/hit.wav alias hit"), NULL, 0, NULL);
+	mciSendString(_T("open resources/hit.mp3 alias hit"), NULL, 0, NULL);
 
 
 }

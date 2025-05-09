@@ -51,7 +51,7 @@ public:
         round_num++;
 
         //初始化游戏回合计时器
-        timer_game_round.set_wait_time(10000);  
+        timer_game_round.set_wait_time(25000);  
         timer_game_round.set_one_shot(false);
         timer_game_round.set_timeout([&]() {
             scene_manager.switch_to(SceneManager::SceneType::EventSelection);

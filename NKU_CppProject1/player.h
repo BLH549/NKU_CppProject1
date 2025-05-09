@@ -29,8 +29,8 @@ public:
     Vector2 position;                // 角色位置,中心点
     Vector2 velocity;                   //角色速度
     int damage = 20; //角色伤害值
-	int hp_max = 30; //角色最大血量
-    int hp = 30; //角色血量
+	int hp_max = 45; //角色最大血量
+    int hp = 45; //角色血量
 	int attack_cd = 500; //角色攻击冷却时间
     const float run_velocity = 0.25f;//跑动速度
 
@@ -192,6 +192,14 @@ public:
 
 		//重置角色血量
 		hp = hp_max;
+
+        //更新
+        timer_attack_cd.set_wait_time(attack_cd);
+        timer_attack_cd.set_one_shot(false);
+        timer_attack_cd.set_timeout([&]()
+            {
+                can_attack = true;
+            });
 
     }
 
