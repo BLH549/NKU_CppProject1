@@ -1,9 +1,9 @@
 # 南开高级语言程序设计2-2大作业项目报告
 ## 1.  简介
 ### 1.1 项目名称
-南开小游戏
+**CHT历险记**
 ### 1.2 开发软件
-Visual Studio 2022
+Visual Studio 2022 + EasyX
 ### 1.3 项目简介
 一个2D的类肉鸽小游戏，玩家操作一名骑士面对大量敌人的进攻，尽可能地存活并击杀尽量多的敌人。每轮结束后，玩家会获得祝福，但同时敌人也会随着轮数增加而变强。
 
@@ -19,8 +19,28 @@ virtual void on_draw() {}
 virtual void on_input(const ExMessage& msg) {}
 virtual void on_exit() {}
 ```
-通过纯虚函数强制子类实现对应场景中的逻辑。GameScene、MenuScene、EventSelection 作为具体子类，分别重写基类方法，实现游戏场景、主菜单场景、事件选择场景的独有逻辑。
+GameScene、MenuScene、EventSelection 作为具体子类，分别重写基类方法，实现游戏场景、主菜单场景、事件选择场景的独有逻辑。
 例如，GameScene 的 on_update 方法处理游戏逻辑更新，on_draw 方法负责渲染游戏画面。
+
+
+下面是MenuScene的on_draw
+```cpp
+void on_draw()
+{
+    putimage(0, 0, &img_menu_background);
+    outtextxy(540, 540, _T("按任意键进入游戏"));
+
+    COLORREF old_color = gettextcolor();
+
+    // 绘制提示文本
+    const TCHAR* hint_text = _T("(WASD移动，J攻击，记得切换英文输入法)");
+    int hint_width = textwidth(hint_text);
+
+    settextcolor(RGB(200, 200, 200)); // 浅灰色
+    outtextxy((1280 - hint_width) / 2 ,580, hint_text);
+    settextcolor(old_color);
+}
+```
 
 #### 2.1.2 场景的统一处理
 
@@ -106,7 +126,7 @@ timer_game_round.set_timeout([&]() {
 ```
 角色、敌人和子弹等对象持有 Animation 实例，在各自的on_update 方法中调用动画更新逻辑，实现动画播放效果。
 ### 2.3 玩家的实现
-玩家类 Player 实现了玩家的移动,攻击，渲染等逻辑。
+玩家类 Player 实现了玩家的移动,攻击，渲染等逻辑。受限于篇幅，下面以Player类中的on_update,on_input,on_render方法简要介绍一下。
 
 在 on_update 方法中处理玩家的移动和动画更新：
 ```cpp
@@ -212,6 +232,8 @@ void on_render()
 
 }
 ```
+
+
 
 ### 2.4 敌人的实现
 敌人分为 Orc 和 Shaman 等类型，它们都继承自 基类Enemy 类。由统一的enemy_list进行管理与更新。
@@ -412,7 +434,7 @@ struct Particle {
     Vector2 position;     // 当前位置
     int current_radius;   // 当前半径
     COLORREF color;       // 固定颜色
-    Vector2 velocity;     // 运动速度，使用 Vector2 类型
+    Vector2 velocity;     // 运动速度
     int decrease_rate;    // 每帧半径衰减量
 };
 ```
