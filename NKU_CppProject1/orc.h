@@ -1,4 +1,4 @@
-// orc.h
+
 #pragma once
 #include "enemy.h"
 #include "player.h"

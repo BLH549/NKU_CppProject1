@@ -40,7 +40,7 @@ private:
     Timer timer_spawn_orc;    //生成小怪计时器
 	Timer timer_spawn_shaman; //生成shaman计时器
     StatusBar status_bar;  //玩家状态条
-	int enemy_damage_increase = 5; //敌人每轮伤害增加值
+	int enemy_damage_increase = 4; //敌人每轮伤害增加值
 	int enemy_hp_increase = 10; //敌人每轮血量增加值
 public:
     GameScene() = default;
@@ -60,7 +60,7 @@ public:
 
         // 根据轮数计算敌人生成间隔（轮数越高间隔越短，最低不低于300ms）
         int orc_spawn_interval = max(500, 1000 - round_num * 100);
-        int shaman_spawn_interval = max(400, (2000 - round_num * 150));
+        int shaman_spawn_interval = max(400, (2000 - round_num * 200));
        
         timer_spawn_orc.set_wait_time(orc_spawn_interval);
         timer_spawn_orc.set_one_shot(false);
@@ -88,7 +88,7 @@ public:
         status_bar.set_position(10, 10);
 
         mciSendString(_T("play bgm_game repeat from 0"), NULL, 0, NULL);
-        mciSendString(_T("setaudio bgm_game volume to 300"), NULL, 0, NULL); // 新增音量设置
+        mciSendString(_T("setaudio bgm_game volume to 150"), NULL, 0, NULL); // 调小了背景音乐
     }
 
     void on_update(int delta)

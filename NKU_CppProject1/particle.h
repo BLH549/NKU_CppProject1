@@ -7,10 +7,10 @@
 
 // 定义粒子结构体
 struct Particle {
-    Vector2 position;     // 当前位置，使用 Vector2 类型以符合你的代码风格
+    Vector2 position;     // 当前位置
     int current_radius;   // 当前半径
     COLORREF color;       // 固定颜色
-    Vector2 velocity;     // 运动速度，使用 Vector2 类型
+    Vector2 velocity;     // 运动速度
     int decrease_rate;    // 每帧半径衰减量
 };
 

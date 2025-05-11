@@ -193,7 +193,7 @@ public:
 		//重置角色血量
 		hp = hp_max;
 
-        //更新
+        //更新攻击cd
         timer_attack_cd.set_wait_time(attack_cd);
         timer_attack_cd.set_one_shot(false);
         timer_attack_cd.set_timeout([&]()
