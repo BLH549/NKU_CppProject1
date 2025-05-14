@@ -9,236 +9,195 @@ Visual Studio 2022 + EasyX
 
 ## 2. 项目设计思路
 ### 2.1 场景管理
-在本项目中，需要频繁的切换不同的场景，所以借助面向对象的特性，采用场景管理器来同一管理所有的场景。
+在本项目中，存在多个界面，且需要在多个界面中频繁切换。所以借助面向对象的特性，采用场景管理器模式实现了高效、低耦合的场景切换系统。
+
 #### 2.1.1 场景类的实现
-定义抽象的Scene基类，其核心成员方法为
+为统一场景行为规范，首先设计了抽象基类 Scene，定义了其核心方法：
 ```cpp
-virtual void on_enter() {}    
-virtual void on_update(int delta) {}
-virtual void on_draw() {}
-virtual void on_input(const ExMessage& msg) {}
-virtual void on_exit() {}
-```
-GameScene、MenuScene、EventSelection 作为具体子类，分别重写基类方法，实现游戏场景、主菜单场景、事件选择场景的独有逻辑。
-例如，GameScene 的 on_update 方法处理游戏逻辑更新，on_draw 方法负责渲染游戏画面。
-
-
-下面是MenuScene的on_draw
-```cpp
-void on_draw()
+class Scene
 {
-    putimage(0, 0, &img_menu_background);
-    outtextxy(540, 540, _T("按任意键进入游戏"));
+public:
+    Scene() = default;
+    ~Scene() = default;
 
-    COLORREF old_color = gettextcolor();
+    virtual void on_enter() {}
+    virtual void on_update(int delta) {}
+    virtual void on_draw() {}
+    virtual void on_input(const ExMessage& msg) {}
+    virtual void on_exit() {}
 
-    // 绘制提示文本
-    const TCHAR* hint_text = _T("(WASD移动，J攻击，记得切换英文输入法)");
-    int hint_width = textwidth(hint_text);
+private:
 
-    settextcolor(RGB(200, 200, 200)); // 浅灰色
-    outtextxy((1280 - hint_width) / 2 ,580, hint_text);
-    settextcolor(old_color);
-}
+};
 ```
+该抽象类定义了场景的基本模式，具体场景子类通过继承并重写这些方法实现特定行为。
+例如：
+* MenuScene：实现游戏主菜单界面
+* GameScene：实现游戏核心玩法逻辑
+* EventSelectionScene：实现事件选择系统
 
-#### 2.1.2 场景的统一处理
 
-SceneManager 作为场景管理器，持有 Scene 基类指针 current_scene。其部分成员方法如下：
+#### 2.1.2 场景管理器实现
+
+场景管理器 SceneManager 作为中央控制枢纽，负责场景的管理、切换和更新等操作。核心代码如下：
+
 ```cpp
-Scene* current_scene = nullptr;
+extern Scene* menu_scene;
+extern Scene* game_scene;
+extern Scene* eventselection_scene;
 
-    void on_update(int delta) {}
-    {
-        current_scene->on_update(delta);
-    }
-
-    void on_draw()
-    {
-        current_scene->on_draw();
-    }
-
-    void on_input(const ExMessage& msg)
-    {
-        current_scene->on_input(msg);
-    }
-```
-在游戏主循环中，通过调用 current_scene 的 on_update、on_draw、on_input 方法，实现场景的统一更新、绘制与输入处理，确保场景切换的流畅性与逻辑一致性。例如：在主循环中,游戏的更新逻辑如下
-```cpp
-//更新
-static DWORD last_tick_time = GetTickCount();
-DWORD current_tick_time = GetTickCount();
-DWORD delta_tick = current_tick_time - last_tick_time;
-scene_manager.on_update(delta_tick);
-```
-
-#### 2.1.3 场景之间跳转逻辑的实现
-
-通过SceneManager中的switch_to方法实现场景的切换。
-```cpp
-void switch_to(SceneType type)
+class SceneManager
 {
-    current_scene->on_exit();
-    switch (type)
+public:
+    enum class SceneType
     {
-    case SceneType::Menu:
-		current_scene = menu_scene;
-        break;
-    case SceneType::Game:
-		current_scene = game_scene;
-        break;
-	case SceneType::EventSelection:
-		current_scene = eventselection_scene;
-		break;
+        Menu,
+        Game,
+	EventSelection
+    };
 
-    default:
-        break;
+private:
+    Scene* current_scene = nullptr;
+
+public:
+    SceneManager() = default;
+    ~SceneManager() = default;
+
+    void set_current_scene(Scene* scene)
+    {
+        current_scene = scene;
+        current_scene->on_enter();
     }
-    current_scene->on_enter();
-}
+
+    void switch_to(SceneType type)
+    {
+        current_scene->on_exit();
+        switch (type)
+        {
+        case SceneType::Menu:
+			current_scene = menu_scene;
+            break;
+        case SceneType::Game:
+			current_scene = game_scene;
+            break;
+		case SceneType::EventSelection:
+			current_scene = eventselection_scene;
+			break;
+
+        default:
+            break;
+        }
+        current_scene->on_enter();
+    }
+
+    // 委托调用当前场景方法
+    void on_update(int delta){current_scene->on_update(delta);}
+    void on_draw(){current_scene->on_draw();}
+    void on_input(const ExMessage& msg){current_scene->on_input(msg);}
+
 ```
-在具体的场景子类中调用switch_to,实现场景的切换。例如game_scene中每轮时间结束时，调用switch_to，切换至EventSelection场景。
-```cpp
-timer_game_round.set_timeout([&]() {
-    scene_manager.switch_to(SceneManager::SceneType::EventSelection);
-    });
-```
+该设计主要实现了以下两个功能：
+
+* 场景切换：
+
+	通过SceneManager的 switch_to 方法实现平滑过渡。例如在GameScene中，当每轮游戏时间结束时，计时器会执行如下的回调函数：
+	```cpp
+	//更新
+	timer_game_round.set_timeout([&]() {
+    	scene_manager.switch_to(SceneManager::SceneType::EventSelection);
+   	 });
+	```
+
+* 统一接口：
+  
+  	SceneManager提供 on_update、on_draw、on_input 等统一调用接口。在游戏主循环中可以方便地使用Scenemanager的方法来调用当前场景的逻辑。
+	例如在主循环中，通过下面代码来实现当前场景的更新逻辑。
+	```cpp
+	//更新
+	static DWORD last_tick_time = GetTickCount();
+	DWORD current_tick_time = GetTickCount();
+	DWORD delta_tick = current_tick_time - last_tick_time;
+	scene_manager.on_update(delta_tick);
+	```
+  
 
 ### 2.2 动画类的实现
 
-定义 Animation 类管理游戏对象动画，通过 std::vector 存储帧序列，使用 Timer 控制帧播放间隔。每隔一段时间切换下一帧，逻辑如下：
-```cpp
-        timer.set_one_shot(false);
-        timer.set_timeout(
-            [&]()
-            {
-                idx_frame++;
-                if (idx_frame >= frame_list.size())
-                {
-                    idx_frame = is_loop ? 0 : frame_list.size() - 1;
-                    if (!is_loop && on_finished)
-                    {
-                        on_finished();
-                    }
-                }
-            }
+在本项目中，Animation 类负责管理游戏对象的动画。它采用帧序列 + 计时器的模式实现动画播放：通过std::vector存储动画帧序列，利用Timer类控制帧播放间隔。
+每到设定时间，Timer触发回调，切换至下一帧；若播放到序列末尾，根据is_loop属性判断是否循环播放或触发结束回调。
 
+```cpp
+// 核心播放逻辑
+timer.set_timeout([&]() {
+    idx_frame++;
+    if (idx_frame >= frame_list.size()) {
+        idx_frame = is_loop ? 0 : frame_list.size() - 1;
+        if (!is_loop && on_finished) {
+            on_finished();
+        }
+    }
+});
 ```
-角色、敌人和子弹等对象持有 Animation 实例，在各自的on_update 方法中调用动画更新逻辑，实现动画播放效果。
+此外，该类提供了灵活的资源管理接口，支持从单张整图按区域切割添加帧，或从图像集批量导入帧。
+更新与渲染流程也进行了封装，on_update方法驱动计时器，on_render方法根据当前帧索引完成图像绘制，方便与游戏主循环集成 。
+
 ### 2.3 玩家的实现
-玩家类 Player 实现了玩家的移动,攻击，渲染等逻辑。受限于篇幅，下面以Player类中的on_update,on_input,on_render方法简要介绍一下。
+Player 类是游戏的核心角色。以下是核心功能介绍：
+1. **基础属性** ：
+	```cpp
+ 	Vector2 size;                      //角色尺寸
+	Vector2 position;                // 角色位置,中心点
+	Vector2 velocity;                   //角色速度
+	int damage = 20; //角色伤害值
+	int hp_max = 70; //角色最大血量
+	int hp = 70; //角色血量
+	int attack_cd = 500; //角色攻击冷却时间
+	const float run_velocity = 0.25f;//跑动速度
+	bool can_collide_with_bullet = false; //是否可以碰撞子弹
+	```
+2. **动画系统** :
+   	持有 4 个动画（左右移动 / 左右待机）根据移动状态自动切换动画。
+   	```cpp
+ 	if (is_moving)
+	{
+   	 	if (direction != 0)
+    		{
+        		is_facing_right = direction > 0;
+   		}
+    		current_animation = is_facing_right ? &animation_run_right : &animation_run_left;
+	}	
+	else
+	{
+    		current_animation = is_facing_right ? &animation_idle_right : &animation_idle_left;
+	}
+	current_animation->on_update(delta);
+ 	```
+3.  **移动攻击** ：
+   
+   	WASD 四向移动,按J进行攻击
+    
+4. **状态管理**：
+   - 通过计时器控制状态持续时间
+   - 受伤后短暂无敌
+   - 攻击冷却(一段时间内无法再次攻击)
+  
+5. **核心方法**:
 
-在 on_update 方法中处理玩家的移动和动画更新：
-```cpp
-void on_update(int delta)
- {
-     //角色移动
-     on_run(delta);
-		//动画更新
-     int direction = is_right_key_down - is_left_key_down;
-     if (is_moving)
-     {
-         if (direction != 0)
-         {
-             is_facing_right = direction > 0;
-         }
-         else
-         {
-             is_facing_right = is_facing_right;
-         }
-
-         current_animation = is_facing_right ? &animation_run_right : &animation_run_left;
-     }
-     else
-     {
-
-         current_animation = is_facing_right ? &animation_idle_right : &animation_idle_left;
-     }
-     current_animation->on_update(delta);
-		//计时器更新
-     timer_invulnerable.on_update(delta);
-		timer_attack_cd.on_update(delta);
-
- }
-
-```
-在 on_input 方法中处理玩家的输入：
-
-```cpp
-void on_input(const ExMessage& msg)
-{
-    switch (msg.message)
-    {
-    case WM_KEYDOWN:
-        switch (msg.vkcode)
-        {
-        case 'W': // 向上移动
-            is_up_key_down = true;
-            break;
-        case 'S': // 向下移动
-            is_down_key_down = true;
-            break;
-        case 'A': // 向左移动
-            is_left_key_down = true;
-            break;
-        case 'D': // 向右移动
-            is_right_key_down = true;
-            break;
-        case 'J': // 攻击
-            if (can_attack)
-            {
-                on_attack();
-                can_attack = false;
-                timer_attack_cd.restart();
-            }
-            break;
-        }
-        break;
-
-    case WM_KEYUP:
-        switch (msg.vkcode)
-        {
-        case 'W': // 停止向上移动
-            is_up_key_down = false;
-            break;
-        case 'S': // 停止向下移动
-            is_down_key_down = false;
-            break;
-        case 'A': // 停止向左移动
-            is_left_key_down = false;
-            break;
-        case 'D': // 停止向右移动
-            is_right_key_down = false;
-            break;
-        }
-        break;
-    }
-}
-```
-在on_render()方法上实现角色的绘制
-```cpp
-void on_render()
-{
-    current_animation->set_position(position);
-    current_animation->on_render(1.0f);
-
-    if (is_debug)
-    {
-        setlinecolor(RGB(0, 125, 255));
-        rectangle((int)(position.x - size.x / 2), (int)(position.y - size.y / 2), (int)(position.x + size.x / 2), (int)(position.y + size.y / 2));
-		circle((int)position.x, (int)position.y, 100);
-    }
-
-
-}
-```
-
+   主要提供了on_input,on_updaee,on_render来处理输入，更新 ，绘制逻辑。
 
 
 ### 2.4 敌人的实现
-敌人分为 Orc 和 Shaman 等类型，它们都继承自 基类Enemy 类。由统一的enemy_list进行管理与更新。
+在本游戏项目中，通过继承基类 Enemy 实现了不同类型敌人的统一管理与差异化行为。
+目前已实现的敌人类型包括 Orc 和 Shaman，由统一的 enemy_list 进行管理和更新，确保了游戏逻辑的一致性和可扩展性。
 
-在enemy类中的构造函数中实现敌人随机生成在地图边缘：
+
+### 2.4.1 敌人基类设计
+
+Enemy 基类定义了所有敌人类型必须具备的通用属性和行为接口。
+这些基础属性包括位置、速度、动画状态等，同时也定义了敌人与玩家交互的基本方式。
+基类中enemy的动画系统和方法接口与 Player 类有相似之处，因此在此不再赘述。
+
+其中构造函数实现了敌人在地图边缘的随机生成逻辑：
 ```cpp
 Enemy()
 {
@@ -273,26 +232,21 @@ Enemy()
     }
 }
 ```
-orc只能通过与玩家碰撞才能对玩家造成伤害，其on_update方法如下：
+on_run方法实现朝玩家移动
 ```cpp
-void on_update(int delta, const Player* player)	override
+void on_run(int delta, const Player* player)
 {
-	//角色移动
-	on_run(delta, player);
-	//动画更新
-	if (dir_player_normalized.x != 0)
-	{
-		is_facing_right = dir_player_normalized.x > 0;
-	}
-	else
-	{
-		is_facing_right = is_facing_right;
-	}
-	current_animation = is_facing_right ? &animation_run_right : &animation_run_left;
-	current_animation->on_update(delta);
+    
+    Vector2 dir = { player->get_position().x - position.x, player->get_position().y - position.y };
+    dir_player_normalized = dir.normalize();
+    
+    position.x += (int)(run_velocity * dir_player_normalized.x * delta);
+    position.y += (int)(run_velocity * dir_player_normalized.y * delta);
+
 }
 ```
-shaman不仅能够通过与玩家碰撞造成伤害，还能通过发射子弹造成伤害。但其on_update与orc类似，不再赘述。
+尽管所有敌人共享基础行为，但不同敌人之间攻击方法各异。
+例如，Orc 仅能通过碰撞造成伤害，而 Shaman 不仅能碰撞攻击，还能发射远程子弹。受限于篇幅，不作展开
 
 ### 2.5 子弹类的实现
 
@@ -439,7 +393,9 @@ struct Particle {
 };
 ```
 
-统一由粒子系统 ParticleSystem 负责管理和更新粒子效果。在 GameScene 的 on_update 方法中调用 particle_system->UpdateAll() 进行更新，在 on_draw 方法中调用 particle_system->DrawAll() 进行绘制。
+当敌人受伤或死亡时，会产生一定量的粒子。这些粒子由统一由粒子系统 ParticleSystem 负责管理和更新粒子效果。
+
+在 GameScene 的 on_update 方法中调用 particle_system->UpdateAll() 进行更新，在 on_draw 方法中调用 particle_system->DrawAll() 进行绘制。
 
 ```cpp
  void UpdateAll() 
@@ -506,6 +462,7 @@ void on_enter()
     }
 }
 ```
+此外每个事件都有对应的图片与文字表述，在on_draw方法中实现绘制
 
 ## 结论
 通过本次大作业，成功实现了一个基于面向对象设计的小游戏。系统具有良好的扩展性和可维护性，通过多态、继承和封装等面向对象特性，有效组织了复杂的游戏逻辑。后续可进一步扩展敌人类型、添加更多技能系统和优化游戏性能。
